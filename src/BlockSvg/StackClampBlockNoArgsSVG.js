@@ -1,19 +1,23 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { useDrag, useDrop } from "react-dnd";
 
 export const StackClampBlockNoArgsSVG = (props) => {
+
   const svgPath = useRef();
   const outerDiv = useRef();
+
+  const [dragEnabled, setDragEnabled] = useState(false);
 
   const [{ isDragging, item }, drag] = useDrag({
     type: "START",
     canDrag: (monitor) => {
-      console.log("From canDrag");
-      console.log(monitor.getItem());
-      return true;
+      return dragEnabled;
+    },
+    end: (item, monitor) => {
+        setDragEnabled(false);
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -21,19 +25,18 @@ export const StackClampBlockNoArgsSVG = (props) => {
     }),
   });
 
+
   useEffect(() => {
     if (svgPath && svgPath.current) {
-      console.log(svgPath.current);
-      svgPath.current.addEventListener("click", () => {
-        console.log("SVG Path Clicked!");
-      });
+      svgPath.current.addEventListener("mousedown", () => {
+        setDragEnabled(true);
+    });
     }
   }, []);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ["TYPE1"],
     drop: (item, monitor) => {
-      console.log(item);
       item.setPosition(
         0.5 * BlocksModel.BLOCK_SIZE + 10,
         2 * BlocksModel.BLOCK_SIZE + 10
