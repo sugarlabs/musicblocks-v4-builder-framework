@@ -1,24 +1,20 @@
 import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import { StackClampBlockNoArgsSVG } from './BlockSvg/StackClampBlockNoArgsSVG';
+import { FlowBlockNoArgsSVG } from './BlockSvg/FlowBlockNoArgsSVG';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 function App() {
   return (
+    <DndProvider backend={HTML5Backend}>
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <StackClampBlockNoArgsSVG type="start"/>
+      <FlowBlockNoArgsSVG type="TYPE1" color="green"/>
+      <FlowBlockNoArgsSVG type="TYPE2" x={300} y={300} color="yellow"/>
     </div>
+    </DndProvider>
   );
 }
 
