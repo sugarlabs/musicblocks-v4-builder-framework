@@ -6,10 +6,11 @@ import { useDrag, useDrop } from "react-dnd";
 
 export const StackClampBlockNoArgsSVG = (props) => {
 
+  const [dragEnabled, setDragEnabled] = useState(false);
+  const [nestedBlocks, setNestedBlocks] = useState(props.schema?.blocks || []);
+
   const svgPath = useRef();
   const outerDiv = useRef();
-
-  const [dragEnabled, setDragEnabled] = useState(false);
 
   const [{ isDragging, item }, drag] = useDrag({
     type: "START",
@@ -17,7 +18,7 @@ export const StackClampBlockNoArgsSVG = (props) => {
       return dragEnabled;
     },
     end: (item, monitor) => {
-        setDragEnabled(false);
+      setDragEnabled(false);
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -25,12 +26,11 @@ export const StackClampBlockNoArgsSVG = (props) => {
     }),
   });
 
-
   useEffect(() => {
     if (svgPath && svgPath.current) {
       svgPath.current.addEventListener("mousedown", () => {
         setDragEnabled(true);
-    });
+      });
     }
   }, []);
 
@@ -47,8 +47,7 @@ export const StackClampBlockNoArgsSVG = (props) => {
     }),
   }));
 
-  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
-  const blockLines = props.blockHeightLines + 3;
+  const blockLines = nestedBlocks.length + 3;
 
   return (
     <div
