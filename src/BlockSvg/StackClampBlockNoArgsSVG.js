@@ -1,29 +1,24 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
+import { CollisionContext } from "../Contexts/CollisionContext";
 import { useDrag, useDrop, DragLayer } from "react-dnd";
+import { pollingTest } from '../Utils/Blocks';
 
-const StackClampBlockNoArgsSVG = (props) => {
-  const lastPollingPosition = useRef({});
+const updateDropZones = (quadtree, oldRef) => {};
 
-  if (!lastPollingPosition.current.x) {
-    lastPollingPosition.current = {
-        ...props.currentOffset
-    };
-  }
+const StackClampBlockNoArgsSVG = React.memo((props) => {
+  const { quadtree } = useContext(CollisionContext);
 
-  if (Math.abs(props.currentOffset?.x - lastPollingPosition.current?.x) >= 5 || Math.abs(props.currentOffset?.y - lastPollingPosition.current?.y) >= 5) {
-    lastPollingPosition.current.x = props.currentOffset.x;
-    lastPollingPosition.current.y = props.currentOffset.y;
-    console.log("Moved by 5 pixels");
-    console.log(lastPollingPosition);
-  }
-
+  const dropArea = useRef();
   const svgPath = useRef();
   const outerDiv = useRef();
+  const dropZones = useRef([]); // used to store references to dropZones
+  const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
   const [dragEnabled, setDragEnabled] = useState(false);
+  const [blocks, setBlocks] = useState(props.schema?.blocks || []);
 
   const [{ isDragging, item }, drag] = useDrag({
     type: "START",
@@ -43,12 +38,26 @@ const StackClampBlockNoArgsSVG = (props) => {
     }),
   });
 
+  if (isDragging && pollingTest(lastPollingPosition, props.currentOffset, 5)) {
+    console.log(props.currentOffset);
+    console.log("Moved By 5 Pixels");
+  }
+
   useEffect(() => {
     if (svgPath && svgPath.current) {
       svgPath.current.addEventListener("mousedown", () => {
         setDragEnabled(true);
       });
     }
+    const area = dropArea.current.getBoundingClientRect();
+    console.log(area);
+    quadtree.push({
+        x: area.left,
+        y: area.top,
+        width: area.width,
+        height: area.height,
+        name: "Purple Stack Clamp Block"
+    });
   }, []);
 
   const [{ isOver }, drop] = useDrop(() => ({
@@ -73,8 +82,8 @@ const StackClampBlockNoArgsSVG = (props) => {
       style={{
         display: "inline-block",
         position: "absolute",
-        top: 100,
-        left: 100,
+        top: 300,
+        left: 900,
         width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
       }}
     >
@@ -123,7 +132,7 @@ const StackClampBlockNoArgsSVG = (props) => {
         </svg>
 
         <div
-          ref={drop}
+          ref={dropArea}
           style={{
             position: "absolute",
             top: 2 * BlocksModel.BLOCK_SIZE,
@@ -136,7 +145,7 @@ const StackClampBlockNoArgsSVG = (props) => {
       </div>
     </div>
   );
-};
+});
 
 StackClampBlockNoArgsSVG.defaultProps = {
   blockHeightLines: 1,
