@@ -2,9 +2,23 @@ import React, { useRef, useState, useEffect } from "react";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrag, useDrop, DragLayer } from "react-dnd";
 
-export const StackClampBlockNoArgsSVG = (props) => {
+const StackClampBlockNoArgsSVG = (props) => {
+  const lastPollingPosition = useRef({});
+
+  if (!lastPollingPosition.current.x) {
+    lastPollingPosition.current = {
+        ...props.currentOffset
+    };
+  }
+
+  if (Math.abs(props.currentOffset?.x - lastPollingPosition.current?.x) >= 5 || Math.abs(props.currentOffset?.y - lastPollingPosition.current?.y) >= 5) {
+    lastPollingPosition.current.x = props.currentOffset.x;
+    lastPollingPosition.current.y = props.currentOffset.y;
+    console.log("Moved by 5 pixels");
+    console.log(lastPollingPosition);
+  }
 
   const svgPath = useRef();
   const outerDiv = useRef();
@@ -16,8 +30,12 @@ export const StackClampBlockNoArgsSVG = (props) => {
     canDrag: (monitor) => {
       return dragEnabled;
     },
+    // isDragging: (monitor) => {
+    //     console.log(monitor.getInitialSourceClientOffset());
+    // },
     end: (item, monitor) => {
-        setDragEnabled(false);
+      setDragEnabled(false);
+      lastPollingPosition.current = {};
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -25,12 +43,11 @@ export const StackClampBlockNoArgsSVG = (props) => {
     }),
   });
 
-
   useEffect(() => {
     if (svgPath && svgPath.current) {
       svgPath.current.addEventListener("mousedown", () => {
         setDragEnabled(true);
-    });
+      });
     }
   }, []);
 
@@ -55,7 +72,9 @@ export const StackClampBlockNoArgsSVG = (props) => {
       ref={outerDiv}
       style={{
         display: "inline-block",
-        position: "relative",
+        position: "absolute",
+        top: 100,
+        left: 100,
         width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
       }}
     >
@@ -110,8 +129,8 @@ export const StackClampBlockNoArgsSVG = (props) => {
             top: 2 * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
-            height: 1 * BlocksModel.BLOCK_SIZE,
-            // backgroundColor: isOver? "white": "green"
+            height: 0.5 * BlocksModel.BLOCK_SIZE,
+            backgroundColor: "green",
           }}
         ></div>
       </div>
@@ -123,3 +142,14 @@ StackClampBlockNoArgsSVG.defaultProps = {
   blockHeightLines: 1,
   blockWidthLines: 5,
 };
+
+function collect(monitor) {
+  return {
+    item: monitor.getItem(),
+    itemType: monitor.getItemType(),
+    currentOffset: monitor.getSourceClientOffset(),
+    isDragging: monitor.isDragging(),
+  };
+}
+
+export default DragLayer(collect)(StackClampBlockNoArgsSVG);
