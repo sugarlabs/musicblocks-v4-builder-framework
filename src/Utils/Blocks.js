@@ -53,6 +53,7 @@ export const setUpDragging = (
           dragFunctions?.dragStart && dragFunctions.dragStart();
         })
         .on("drag", (event) => {
+          console.log(event);
           const divX = event.sourceEvent.clientX - layerX;
           const divY = event.sourceEvent.clientY - layerY;
           surroundingDivRef.current.style.top = `${divY}px`;
@@ -60,8 +61,11 @@ export const setUpDragging = (
           dragFunctions?.dragging && dragFunctions.dragging(divX, divY);
         })
         .on("end", (event) => {
-            console.log("Drag Ended!");
-            dragFunctions?.dragEnd && dragFunctions.dragEnd();
+            console.log(event);
+            const divX = event.sourceEvent.clientX - layerX;
+            const divY = event.sourceEvent.clientY - layerY;
+            console.log(`Drag Ended!`);
+            dragFunctions?.dragEnd && dragFunctions.dragEnd(divX, divY);
         })
     );
   }

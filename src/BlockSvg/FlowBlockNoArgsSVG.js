@@ -7,9 +7,10 @@ import { pollingTest, setUpDragging } from "../Utils/Blocks";
 import { useDrag, DragLayer } from "react-dnd";
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
+  console.log(props.schema);
   const { quadtree } = useContext(CollisionContext);
 
-  const [position, setPosition] = useState({ ...props.position });
+  const [position, setPosition] = useState({ ...props.schema.position });
 
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
@@ -31,11 +32,24 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
     }
   };
 
+  const dragEndCallback = (x, y) => {
+    const colliding = quadtree.colliding({
+        x,
+        y,
+        width: 5,
+        height: 5,
+    });
+    if (colliding.length > 0) {
+        console.log(`Drag ended colliding with ${colliding[0].id}`);
+        colliding[0].addBlock(props.schema);
+        props.removeBlock(props.schema.id);
+    }
+  }
+
   useEffect(() => {
-    setUpDragging(drag, surroundingDiv, { dragging: draggingCallback });
+    setUpDragging(drag, surroundingDiv, { dragging: draggingCallback, dragEnd: dragEndCallback });
   }, [drag.current]);
 
-  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
   const blockLines = 1 + FlowBlockSVG.NOTCH_HEIGHT / 10;
 
   return (
@@ -50,31 +64,31 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
       <div
         style={{
           display: "inline-block",
-          width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
+          width: BlocksModel.BLOCK_SIZE * props.schema.blockWidthLines,
         }}
       >
         <svg
-          viewBox={`0 0 ${props.blockWidthLines * 10} ${blockLines * 10}`}
-          width={`${BlocksModel.BLOCK_SIZE * props.blockWidthLines}px`}
+          viewBox={`0 0 ${props.schema.blockWidthLines * 10} ${blockLines * 10}`}
+          width={`${BlocksModel.BLOCK_SIZE * props.schema.blockWidthLines}px`}
           height={`${BlocksModel.BLOCK_SIZE * blockLines}px`}
         >
           <path
             ref={drag}
-            stroke={props.color}
+            stroke={props.schema.color}
             strokeWidth={".1"}
-            fill={props.color}
+            fill={props.schema.color}
             d={`M0 0
                  h${FlowBlockSVG.NOTCH_DISTANCE}
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h${FlowBlockSVG.NOTCH_WIDTH}
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
                  h${
-                   10 * props.blockWidthLines -
+                   10 * props.schema.blockWidthLines -
                    (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
                  } 
                  v${10 * 1}
                  h-${
-                   10 * props.blockWidthLines -
+                   10 * props.schema.blockWidthLines -
                    (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
                  } 
                  v${FlowBlockSVG.NOTCH_HEIGHT} 

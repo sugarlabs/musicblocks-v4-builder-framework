@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
 import { DndProvider } from "react-dnd";
 import * as Quadtree from "quadtree-lib";
@@ -6,7 +6,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { CollisionContext } from "./Contexts/CollisionContext";
 import FlowBlockNoArgsSVG from "./BlockSvg/FlowBlockNoArgsSVG";
 import StackClampBlockNoArgsSVG from "./BlockSvg/StackClampBlockNoArgsSVG";
-import { workspace } from "./DemoWorkspace";
+import workspaceFromMonitor from "./DemoWorkspace";
 import Crumbs from "./Crumbs";
 import uuid from "uuid/v4";
 
@@ -20,22 +20,22 @@ function App() {
     document.documentElement.clientHeight || 0,
     window.innerHeight || 0
   );
+
+  const [workspace, setWorkspace] = useState(workspaceFromMonitor);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <CollisionContext.Provider
         value={{ quadtree: new Quadtree({ width: vw, height: vh }) }}
       >
         <div className="App">
-          {/* <StackClampBlockNoArgsSVG type="start" />
-          <FlowBlockNoArgsSVG type="TYPE1" color="green" />
-          <FlowBlockNoArgsSVG type="TYPE2" x={300} y={300} color="yellow" /> */}
           {workspace.map((stack) => {
-            switch (stack.category) {
+            switch (stack.type) {
               case "crumbs":
                 console.log("CRUMBS");
                 return <Crumbs schema={stack} />;
               case "start":
-                return <StackClampBlockNoArgsSVG schema={stack} type="start" />;
+                return <StackClampBlockNoArgsSVG schema={stack} />;
               case "action":
                 return (
                   <StackClampBlockNoArgsSVG schema={stack} type="action" />
@@ -44,7 +44,6 @@ function App() {
                 console.log(`Invalid category ${stack.category}`);
             }
           })}
-          <StackClampBlockNoArgsSVG type="start" id={uuid()}/>
         </div>
       </CollisionContext.Provider>
     </DndProvider>

@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-export const workspace = [
+const workspace = [
     {
 		category: "crumbs",
 		type: "crumbs",
@@ -13,9 +13,23 @@ export const workspace = [
 				},
                 color: "green",
 				category: "flow",
-				type: "forward",
+				type: "start",
+                blockWidthLines: 3,
                 args: []
 			}
 		]
-	}
+	},
+    {
+        category: "clamp",
+		type: "start",
+		avatar: "Some avatar here",
+        id: uuid(),
+		position: {
+			x: 200,
+			y: 200
+		},
+        blocks: []
+    }
 ]
+
+export default workspace;

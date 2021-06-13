@@ -4,17 +4,24 @@ import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setUpDragging } from "../Utils/Blocks";
+import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 
 const updateDropZones = (quadtree, oldRef) => {};
 
 const StackClampBlockNoArgsSVG = React.memo((props) => {
+  console.log("Here......");
   const { quadtree } = useContext(CollisionContext);
+
+  const [blocks, setBlocks] = useState(props?.schema?.blocks || []);
 
   const dropArea = useRef();
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
+  const addBlock = (block) => {
+    setBlocks([block]);
+  };
   const pushToQuadtree = () => {
     const area = dropArea.current.getBoundingClientRect();
     quadtree.push({
@@ -22,12 +29,13 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       y: area.top,
       width: area.width,
       height: area.height,
-      id: props.id,
+      id: props.schema.id,
+      addBlock,
     });
   };
 
   const dragStartCallback = () => {
-    const dropZones = quadtree.filter((ele) => ele.id === props.id);
+    const dropZones = quadtree.filter((ele) => ele.id === props.schema.id);
     console.log(dropZones);
     dropZones && dropZones.contents.forEach((zone) => quadtree.remove(zone));
   };
@@ -40,7 +48,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
     });
   }, []);
 
-  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
+  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.schema.type];
   const blockLines = props.blockHeightLines + 3;
 
   return (
@@ -101,13 +109,42 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
           ref={dropArea}
           style={{
             position: "absolute",
-            top: 2 * BlocksModel.BLOCK_SIZE,
+            top: 1.8 * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
-            backgroundColor: "green",
+            // backgroundColor: "yellow",
           }}
         ></div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: 1.8 * BlocksModel.BLOCK_SIZE,
+            left: 0.5 * BlocksModel.BLOCK_SIZE,
+            width: 3 * BlocksModel.BLOCK_SIZE,
+            height: 0.5 * BlocksModel.BLOCK_SIZE,
+            zIndex: 1000,
+          }}
+        >
+          {blocks.map((block, index) => {
+            if (block.category === "flow" && block.args.length === 0) {
+              return (
+                <FlowBlockNoArgsSVG
+                  key={index}
+                  schema={{
+                    ...block,
+                    position: {
+                      x: 0,
+                      y: (index + 0.2) * BlocksModel.BLOCK_SIZE,
+                    },
+                  }}
+                  setBlocks={setBlocks}
+                />
+              );
+            }
+          })}
+        </div>
       </div>
     </div>
   );
