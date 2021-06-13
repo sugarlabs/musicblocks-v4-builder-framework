@@ -15,13 +15,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
-  const dragStartCallback = () => {
-    const dropZones = quadtree.filter((ele) => ele.id === props.id);
-    console.log(dropZones);
-    dropZones && dropZones.contents.forEach(zone => quadtree.remove(zone));
-  };
-
-  useEffect(() => {
+  const pushToQuadtree = () => {
     const area = dropArea.current.getBoundingClientRect();
     quadtree.push({
       x: area.left,
@@ -30,7 +24,20 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       height: area.height,
       id: props.id,
     });
-    setUpDragging(drag, surroundingDiv, {dragStart: dragStartCallback});
+  };
+
+  const dragStartCallback = () => {
+    const dropZones = quadtree.filter((ele) => ele.id === props.id);
+    console.log(dropZones);
+    dropZones && dropZones.contents.forEach((zone) => quadtree.remove(zone));
+  };
+
+  useEffect(() => {
+    pushToQuadtree();
+    setUpDragging(drag, surroundingDiv, {
+      dragStart: dragStartCallback,
+      dragEnd: pushToQuadtree,
+    });
   }, []);
 
   const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
