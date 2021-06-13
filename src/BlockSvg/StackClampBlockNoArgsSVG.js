@@ -60,18 +60,18 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
     });
   }, []);
 
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: ["TYPE1"],
-    drop: (item, monitor) => {
-      item.setPosition(
-        0.5 * BlocksModel.BLOCK_SIZE + 10,
-        2 * BlocksModel.BLOCK_SIZE + 10
-      );
-    },
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-    }),
-  }));
+//   const [{ isOver }, drop] = useDrop(() => ({
+//     accept: ["TYPE1"],
+//     drop: (item, monitor) => {
+//       item.setPosition(
+//         0.5 * BlocksModel.BLOCK_SIZE + 10,
+//         2 * BlocksModel.BLOCK_SIZE + 10
+//       );
+//     },
+//     collect: (monitor) => ({
+//       isOver: !!monitor.isOver(),
+//     }),
+//   }));
 
   const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
   const blockLines = props.blockHeightLines + 3;

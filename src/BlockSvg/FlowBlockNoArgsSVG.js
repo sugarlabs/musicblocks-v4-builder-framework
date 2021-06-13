@@ -6,28 +6,28 @@ import { CollisionContext } from "../Contexts/CollisionContext";
 import { useDrag, DragLayer } from "react-dnd";
 import { pollingTest } from "../Utils/Blocks";
 
-const FlowBlockNoArgsSVG = (props) => {
+const FlowBlockNoArgsSVG = React.memo((props) => {
   const { quadtree } = useContext(CollisionContext);
 
-  const [x, setX] = useState(props.x ? props.x : 500);
-  const [y, setY] = useState(props.y ? props.y : 500);
+//   const [x, setX] = useState(props.position.x ? props.position.x : 500);
+//   const [y, setY] = useState(props.position.y ? props.position.y : 500);
 
   const lastPollingPosition = useRef({});
 
-  const setPosition = (x, y) => {
-    setX(x);
-    setY(y);
-  };
+//   const setPosition = (x, y) => {
+//     setX(x);
+//     setY(y);
+//   };
 
   const [{ isDragging }, drag] = useDrag({
     type: props.type,
     item: {
       name: "amazing item",
       type: props.type,
-      setPosition: setPosition.bind(this),
+    //   setPosition: setPosition.bind(this),
     },
     end: () => {
-      lastPollingPosition.current = {};
+      props.setPosition(props.id, props.currentOffset);
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -52,7 +52,7 @@ const FlowBlockNoArgsSVG = (props) => {
   const blockLines = 1 + FlowBlockSVG.NOTCH_HEIGHT / 10;
 
   return (
-    <div style={{ position: "absolute", top: y, left: x }}>
+    <div style={{ position: "absolute", top: props.position.y, left: props.position.x }}>
       <div
         ref={drag}
         style={{
@@ -93,7 +93,7 @@ const FlowBlockNoArgsSVG = (props) => {
       </div>
     </div>
   );
-};
+});
 
 FlowBlockNoArgsSVG.defaultProps = {
   blockWidthLines: 3,
