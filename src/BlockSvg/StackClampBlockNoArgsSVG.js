@@ -3,8 +3,7 @@ import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
-import { useDrag, useDrop, DragLayer } from "react-dnd";
-import { pollingTest } from '../Utils/Blocks';
+import { pollingTest, setUpDragging } from "../Utils/Blocks";
 
 const updateDropZones = (quadtree, oldRef) => {};
 
@@ -12,73 +11,33 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
   const { quadtree } = useContext(CollisionContext);
 
   const dropArea = useRef();
-  const svgPath = useRef();
-  const outerDiv = useRef();
-  const dropZones = useRef([]); // used to store references to dropZones
+  const drag = useRef(null);
+  const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
-  const [dragEnabled, setDragEnabled] = useState(false);
-  const [blocks, setBlocks] = useState(props.schema?.blocks || []);
-
-  const [{ isDragging, item }, drag] = useDrag({
-    type: "START",
-    canDrag: (monitor) => {
-      return dragEnabled;
-    },
-    // isDragging: (monitor) => {
-    //     console.log(monitor.getInitialSourceClientOffset());
-    // },
-    end: (item, monitor) => {
-      setDragEnabled(false);
-      lastPollingPosition.current = {};
-    },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-      item: monitor.getItem(),
-    }),
-  });
-
-  if (isDragging && pollingTest(lastPollingPosition, props.currentOffset, 5)) {
-    console.log(props.currentOffset);
-    console.log("Moved By 5 Pixels");
-  }
+  //   if (pollingTest(lastPollingPosition, props.currentOffset, 5)) {
+  //     console.log(props.currentOffset);
+  //     console.log("Moved By 5 Pixels");
+  //   }
 
   useEffect(() => {
-    if (svgPath && svgPath.current) {
-      svgPath.current.addEventListener("mousedown", () => {
-        setDragEnabled(true);
-      });
-    }
     const area = dropArea.current.getBoundingClientRect();
-    console.log(area);
     quadtree.push({
-        x: area.left,
-        y: area.top,
-        width: area.width,
-        height: area.height,
-        name: "Purple Stack Clamp Block"
+      x: area.left,
+      y: area.top,
+      width: area.width,
+      height: area.height,
+      name: "Purple Stack Clamp Block",
     });
+    setUpDragging(drag, surroundingDiv);
   }, []);
-
-//   const [{ isOver }, drop] = useDrop(() => ({
-//     accept: ["TYPE1"],
-//     drop: (item, monitor) => {
-//       item.setPosition(
-//         0.5 * BlocksModel.BLOCK_SIZE + 10,
-//         2 * BlocksModel.BLOCK_SIZE + 10
-//       );
-//     },
-//     collect: (monitor) => ({
-//       isOver: !!monitor.isOver(),
-//     }),
-//   }));
 
   const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
   const blockLines = props.blockHeightLines + 3;
 
   return (
     <div
-      ref={outerDiv}
+      ref={surroundingDiv}
       style={{
         display: "inline-block",
         position: "absolute",
@@ -88,7 +47,6 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       }}
     >
       <div
-        ref={drag}
         style={{
           display: "inline-block",
           position: "relative",
@@ -101,10 +59,10 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
           height={`${BlocksModel.BLOCK_SIZE * blockLines}px`}
         >
           <path
-            ref={svgPath}
+            ref={drag}
             stroke="purple"
-            strokeWidth={isDragging ? "0" : ".1"}
-            fill={isDragging ? "none" : "purple"}
+            strokeWidth={".1"}
+            fill={"purple"}
             d={`M0 10 h10
                  l${ClampBlockSVG.CAP_SIZE} -${ClampBlockSVG.CAP_SIZE}
                  l${ClampBlockSVG.CAP_SIZE} ${ClampBlockSVG.CAP_SIZE}
@@ -161,4 +119,4 @@ function collect(monitor) {
   };
 }
 
-export default DragLayer(collect)(StackClampBlockNoArgsSVG);
+export default StackClampBlockNoArgsSVG;

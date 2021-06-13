@@ -1,60 +1,53 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
+import { pollingTest, setUpDragging } from "../Utils/Blocks";
 import { useDrag, DragLayer } from "react-dnd";
-import { pollingTest } from "../Utils/Blocks";
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
+
   const { quadtree } = useContext(CollisionContext);
 
-//   const [x, setX] = useState(props.position.x ? props.position.x : 500);
-//   const [y, setY] = useState(props.position.y ? props.position.y : 500);
+  const [position, setPosition] = useState({...props.position});
+
+  const drag = useRef(null);
+  const surroundingDiv = useRef(null);
 
   const lastPollingPosition = useRef({});
 
-//   const setPosition = (x, y) => {
-//     setX(x);
-//     setY(y);
-//   };
+  //   // the drag layers are linked
+  //   if (pollingTest(lastPollingPosition, props.currentOffset, 5)) {
+  //     console.log("Moved By 5 Pixels");
+  //     const colliding = quadtree.colliding({
+  //       x: props.currentOffset.x,
+  //       y: props.currentOffset.y,
+  //       width: 5, //Optional
+  //       height: 5, //Optional
+  //     });
+  //     if (colliding.length > 0) {
+  //         console.log(colliding[0]);
+  //     }
+  //   }
 
-  const [{ isDragging }, drag] = useDrag({
-    type: props.type,
-    item: {
-      name: "amazing item",
-      type: props.type,
-    //   setPosition: setPosition.bind(this),
-    },
-    end: () => {
-      props.setPosition(props.id, props.currentOffset);
-    },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  });
-
-  // the drag layers are linked
-  if (isDragging && pollingTest(lastPollingPosition, props.currentOffset, 5)) {
-    console.log("Moved By 5 Pixels");
-    const colliding = quadtree.colliding({
-      x: props.currentOffset.x,
-      y: props.currentOffset.y,
-      width: 5, //Optional
-      height: 5, //Optional
-    });
-    if (colliding.length > 0) {
-        console.log(colliding[0]);
-    }
-  }
+  useEffect(() => {
+    setUpDragging(drag, surroundingDiv);
+  }, [drag.current]);
 
   const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
   const blockLines = 1 + FlowBlockSVG.NOTCH_HEIGHT / 10;
 
   return (
-    <div style={{ position: "absolute", top: props.position.y, left: props.position.x }}>
+    <div
+      ref={surroundingDiv}
+      style={{
+        position: "absolute",
+        top: position.y,
+        left: position.x,
+      }}
+    >
       <div
-        ref={drag}
         style={{
           display: "inline-block",
           width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
@@ -66,9 +59,10 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
           height={`${BlocksModel.BLOCK_SIZE * blockLines}px`}
         >
           <path
+            ref={drag}
             stroke={props.color}
-            strokeWidth={isDragging ? "0" : ".1"}
-            fill={isDragging ? "none" : props.color}
+            strokeWidth={".1"}
+            fill={props.color}
             d={`M0 0
                  h${FlowBlockSVG.NOTCH_DISTANCE}
                  v${FlowBlockSVG.NOTCH_HEIGHT}
@@ -99,13 +93,4 @@ FlowBlockNoArgsSVG.defaultProps = {
   blockWidthLines: 3,
 };
 
-function collect(monitor) {
-  return {
-    item: monitor.getItem(),
-    itemType: monitor.getItemType(),
-    currentOffset: monitor.getSourceClientOffset(),
-    isDragging: monitor.isDragging(),
-  };
-}
-
-export default DragLayer(collect)(FlowBlockNoArgsSVG);
+export default FlowBlockNoArgsSVG;

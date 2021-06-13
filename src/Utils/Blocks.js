@@ -1,3 +1,5 @@
+import * as d3 from "d3";
+
 export const pollingTest = (oldPosRef, currentOffset, pollingThresold) => {
   if (!oldPosRef.current.x) {
     oldPosRef.current = {
@@ -13,4 +15,28 @@ export const pollingTest = (oldPosRef, currentOffset, pollingThresold) => {
     return true;
   }
   return false;
+};
+
+export const setUpDragging = (draggablePathRef, surroundingDivRef) => {
+  if (draggablePathRef.current) {
+    const svg = d3.select(draggablePathRef.current);
+    let layerX = 0,
+      layerY = 0;
+    svg.on("mousedown", (event) => {
+      console.log(event);
+      layerX = event.layerX;
+      layerY = event.layerY;
+    });
+    svg.call(
+      d3.drag().on("drag", (event) => {
+        console.log(event);
+        surroundingDivRef.current.style.top = `${
+          event.sourceEvent.clientY - layerY
+        }px`;
+        surroundingDivRef.current.style.left = `${
+          event.sourceEvent.clientX - layerX
+        }px`;
+      })
+    );
+  }
 };
