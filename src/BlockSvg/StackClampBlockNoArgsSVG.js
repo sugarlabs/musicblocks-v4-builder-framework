@@ -15,10 +15,11 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
-  //   if (pollingTest(lastPollingPosition, props.currentOffset, 5)) {
-  //     console.log(props.currentOffset);
-  //     console.log("Moved By 5 Pixels");
-  //   }
+  const dragStartCallback = () => {
+    const dropZones = quadtree.filter((ele) => ele.id === props.id);
+    console.log(dropZones);
+    dropZones && dropZones.contents.forEach(zone => quadtree.remove(zone));
+  };
 
   useEffect(() => {
     const area = dropArea.current.getBoundingClientRect();
@@ -27,9 +28,9 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       y: area.top,
       width: area.width,
       height: area.height,
-      name: "Purple Stack Clamp Block",
+      id: props.id,
     });
-    setUpDragging(drag, surroundingDiv);
+    setUpDragging(drag, surroundingDiv, {dragStart: dragStartCallback});
   }, []);
 
   const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];

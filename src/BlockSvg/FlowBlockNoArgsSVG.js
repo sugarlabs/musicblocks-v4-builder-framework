@@ -7,32 +7,32 @@ import { pollingTest, setUpDragging } from "../Utils/Blocks";
 import { useDrag, DragLayer } from "react-dnd";
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
-
   const { quadtree } = useContext(CollisionContext);
 
-  const [position, setPosition] = useState({...props.position});
+  const [position, setPosition] = useState({ ...props.position });
 
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
 
   const lastPollingPosition = useRef({});
 
-  //   // the drag layers are linked
-  //   if (pollingTest(lastPollingPosition, props.currentOffset, 5)) {
-  //     console.log("Moved By 5 Pixels");
-  //     const colliding = quadtree.colliding({
-  //       x: props.currentOffset.x,
-  //       y: props.currentOffset.y,
-  //       width: 5, //Optional
-  //       height: 5, //Optional
-  //     });
-  //     if (colliding.length > 0) {
-  //         console.log(colliding[0]);
-  //     }
-  //   }
+  const draggingCallback = (x, y) => {
+    if (pollingTest(lastPollingPosition, { x, y }, 5)) {
+      console.log("Moved By 5 Pixels");
+      const colliding = quadtree.colliding({
+        x,
+        y,
+        width: 5,
+        height: 5,
+      });
+      if (colliding.length > 0) {
+        console.log(colliding[0]);
+      }
+    }
+  };
 
   useEffect(() => {
-    setUpDragging(drag, surroundingDiv);
+    setUpDragging(drag, surroundingDiv, { dragging: draggingCallback });
   }, [drag.current]);
 
   const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
