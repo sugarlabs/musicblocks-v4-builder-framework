@@ -23,10 +23,44 @@ function App() {
 
   const [workspace, setWorkspace] = useState(workspaceFromMonitor);
 
+  const searchBlock = (id, func, block) => {
+    console.log(`searching for id = ${id}`);
+    console.log(block);
+    console.log(block.id);
+    if (block?.id == id){
+      console.log(`Block with id ${id} found`);
+      func(block);
+    }
+    else {
+      if (Array.isArray(block)) {
+        console.log("is Array");
+        console.log(block.length);
+        for (let i = 0; i < block.length; i++) {
+          searchBlock(id, func, block[i]);
+        }
+      } else {
+        for (let i = 0; i < block?.blocks?.length; i++) {
+          searchBlock(id, func, block.blocks[i]);
+        }
+      }
+    }
+  }
+
+  // stackId - id of parent block inside which the block is to be added
+  // index - index in blocks array of the parent at which the block is to be added
+  // schema - schema of the block to be added
+  const addBlock = (stackId, index, schema) => {
+    const newState = [...workspace];
+    searchBlock(stackId, (block) => {
+      block.blocks = block.blocks.splice(index, 0, schema);
+    }, newState);
+    setWorkspace(newState);
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <CollisionContext.Provider
-        value={{ quadtree: new Quadtree({ width: vw, height: vh }) }}
+        value={{ quadtree: new Quadtree({ width: vw, height: vh }), addBlock: addBlock }}
       >
         <div className="App">
           {workspace.map((stack) => {

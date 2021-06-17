@@ -49,11 +49,11 @@ export const setUpDragging = (
       d3
         .drag()
         .on("start", (event) => {
-          console.log("Drag Started!");
+          // console.log("Drag Started!");
           dragFunctions?.dragStart && dragFunctions.dragStart();
         })
         .on("drag", (event) => {
-          console.log(event);
+          // console.log(event);
           const divX = event.sourceEvent.clientX - layerX;
           const divY = event.sourceEvent.clientY - layerY;
           surroundingDivRef.current.style.top = `${divY}px`;
@@ -61,10 +61,10 @@ export const setUpDragging = (
           dragFunctions?.dragging && dragFunctions.dragging(divX, divY);
         })
         .on("end", (event) => {
-            console.log(event);
+            // console.log(event);
             const divX = event.sourceEvent.clientX - layerX;
             const divY = event.sourceEvent.clientY - layerY;
-            console.log(`Drag Ended!`);
+            // console.log(`Drag Ended!`);
             dragFunctions?.dragEnd && dragFunctions.dragEnd(divX, divY);
         })
     );

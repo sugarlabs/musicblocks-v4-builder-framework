@@ -3,10 +3,10 @@ const workspace = [
     {
 		category: "crumbs",
 		type: "crumbs",
-		id: uuid(),
+		id: "1",
 		blocks: [
 			{
-				id: uuid(),
+				id: "1-1",
 				position: {
 					x: 500,
 					y: 500
@@ -23,7 +23,7 @@ const workspace = [
         category: "clamp",
 		type: "start",
 		avatar: "Some avatar here",
-        id: uuid(),
+        id: "2",
 		position: {
 			x: 200,
 			y: 200

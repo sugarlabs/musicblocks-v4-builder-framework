@@ -7,7 +7,7 @@ import { pollingTest, setUpDragging } from "../Utils/Blocks";
 import { useDrag, DragLayer } from "react-dnd";
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
-  console.log(props.schema);
+  // console.log(props.schema);
   const { quadtree } = useContext(CollisionContext);
 
   const [position, setPosition] = useState({ ...props.schema.position });
@@ -19,7 +19,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
 
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
-      console.log("Moved By 5 Pixels");
+      // console.log("Moved By 5 Pixels");
       const colliding = quadtree.colliding({
         x,
         y,
@@ -27,7 +27,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
         height: 5,
       });
       if (colliding.length > 0) {
-        console.log(colliding[0]);
+        // console.log(colliding[0]);
       }
     }
   };

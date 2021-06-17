@@ -10,7 +10,7 @@ const updateDropZones = (quadtree, oldRef) => {};
 
 const StackClampBlockNoArgsSVG = React.memo((props) => {
   console.log("Here......");
-  const { quadtree } = useContext(CollisionContext);
+  const { quadtree, addBlock } = useContext(CollisionContext);
 
   const [blocks, setBlocks] = useState(props?.schema?.blocks || []);
 
@@ -19,9 +19,15 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
-  const addBlock = (block) => {
-    setBlocks([block]);
+  const add = (block, index) => {
+    console.log(block);
+    addBlock(props.schema.id, 0, block);
   };
+
+  const removeBlock = (id) => {
+    setBlocks(blocks.filter((block) => block.id !== id));
+  };
+
   const pushToQuadtree = () => {
     const area = dropArea.current.getBoundingClientRect();
     quadtree.push({
@@ -30,8 +36,9 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       width: area.width,
       height: area.height,
       id: props.schema.id,
-      addBlock,
+      addBlock: add,
     });
+
   };
 
   const dragStartCallback = () => {
@@ -113,7 +120,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
-            // backgroundColor: "yellow",
+            backgroundColor: "yellow",
           }}
         ></div>
 
