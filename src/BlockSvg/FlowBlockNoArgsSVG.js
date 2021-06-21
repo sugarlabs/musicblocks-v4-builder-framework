@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setUpDragging } from "../Utils/Blocks";
-import { useDrag, DragLayer } from "react-dnd";
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
-  // console.log(props.schema);
-  const { quadtree } = useContext(CollisionContext);
-
-  const [position, setPosition] = useState({ ...props.schema.position });
-
+  const { quadtree, addBlockToCrumbs } = useContext(CollisionContext);
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
-
   const lastPollingPosition = useRef({});
+
+  const dragStartCallback = () => {
+    console.log(quadtree.pretty());
+  }
 
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
@@ -27,27 +25,46 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
         height: 5,
       });
       if (colliding.length > 0) {
-        // console.log(colliding[0]);
+        console.log("colliding");
       }
     }
   };
 
   const dragEndCallback = (x, y) => {
-    const colliding = quadtree.colliding({
+    console.log(`Drag Ending x = ${x} and y = ${y}`);
+    console.log(quadtree.pretty());
+    const collidingDropAreas = quadtree.colliding({
         x,
         y,
         width: 5,
         height: 5,
     });
-    if (colliding.length > 0) {
-        console.log(`Drag ended colliding with ${colliding[0].id}`);
-        colliding[0].addBlock(props.schema);
-        props.removeBlock(props.schema.id);
+    let colliding = false;
+    if (collidingDropAreas.length > 0) {
+        colliding = true;
+        console.log(`Drag ended colliding with ${collidingDropAreas[0].id}`);
+        collidingDropAreas[0].addBlock(props.schema);
+    }
+    if (colliding || !!props.nested) {
+      // if the block(s) were nested and they were dragged then they
+      // are to be removed from the previous block and added to CRUMBS
+      // if the block was previously in CRUMBS or inside another block
+      // and it is colliding at the end of drag then also it is to be
+      // removed from its previous position and added
+      props.removeBlock(props.schema.id);
+    }
+    console.log(`Block Colliding = ${colliding}`);
+    console.log(`nested = ${!!props.nested}`);
+    if (!colliding && !!props.nested) {
+      // if the block is not colliding at the end of the drag and is
+      // nested then the block is to be added to crumbs
+      console.log("Block is going to be added to CRUMBS");
+      addBlockToCrumbs({...props.schema, position: {x, y}});
     }
   }
 
   useEffect(() => {
-    setUpDragging(drag, surroundingDiv, { dragging: draggingCallback, dragEnd: dragEndCallback });
+    setUpDragging(drag, surroundingDiv, { dragging: draggingCallback, dragEnd: dragEndCallback, dragStart: dragStartCallback }, !!props.nested);
   }, [drag.current]);
 
   const blockLines = 1 + FlowBlockSVG.NOTCH_HEIGHT / 10;
@@ -57,8 +74,8 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
       ref={surroundingDiv}
       style={{
         position: "absolute",
-        top: position.y,
-        left: position.x,
+        top: props.schema.position.y,
+        left: props.schema.position.x,
       }}
     >
       <div

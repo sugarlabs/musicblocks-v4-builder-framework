@@ -52,7 +52,23 @@ function App() {
   const addBlock = (stackId, index, schema) => {
     const newState = [...workspace];
     searchBlock(stackId, (block) => {
-      block.blocks = block.blocks.splice(index, 0, schema);
+      block.blocks = [...block.blocks.slice(0, index), schema, ...block.blocks.slice(index)];
+    }, newState);
+    setWorkspace(newState);
+  }
+
+  const addBlockToCrumbs = (schema) => {
+    console.log("Add Block to Crumbs executed!!!...");
+    const newState = [...workspace];
+    newState[0].blocks.push(schema);
+    console.log(newState);
+    setWorkspace(newState);
+  }
+
+  const removeBlock = (stackId, blockId) => {
+    const newState = [...workspace];
+    searchBlock(stackId, (block) => {
+      block.blocks = block.blocks.filter((block) => block.id !== blockId);
     }, newState);
     setWorkspace(newState);
   }
@@ -60,7 +76,7 @@ function App() {
   return (
     <DndProvider backend={HTML5Backend}>
       <CollisionContext.Provider
-        value={{ quadtree: new Quadtree({ width: vw, height: vh }), addBlock: addBlock }}
+        value={{ quadtree: new Quadtree({ width: vw, height: vh }), addBlock, removeBlock, addBlockToCrumbs }}
       >
         <div className="App">
           {workspace.map((stack) => {

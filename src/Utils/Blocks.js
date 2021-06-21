@@ -35,7 +35,8 @@ some observations / assumptions
 export const setUpDragging = (
   draggablePathRef,
   surroundingDivRef,
-  dragFunctions
+  dragFunctions,
+  nested
 ) => {
   if (draggablePathRef.current) {
     const svg = d3.select(draggablePathRef.current);
@@ -50,12 +51,14 @@ export const setUpDragging = (
         .drag()
         .on("start", (event) => {
           // console.log("Drag Started!");
+          console.log(event);
           dragFunctions?.dragStart && dragFunctions.dragStart();
         })
         .on("drag", (event) => {
           // console.log(event);
-          const divX = event.sourceEvent.clientX - layerX;
-          const divY = event.sourceEvent.clientY - layerY;
+          const divX = event.sourceEvent.pageX - layerX;
+          const divY = event.sourceEvent.pageY - layerY;
+          surroundingDivRef.current.style.position = 'fixed';
           surroundingDivRef.current.style.top = `${divY}px`;
           surroundingDivRef.current.style.left = `${divX}px`;
           dragFunctions?.dragging && dragFunctions.dragging(divX, divY);
