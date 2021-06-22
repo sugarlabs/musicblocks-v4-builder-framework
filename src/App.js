@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
 import { DndProvider } from "react-dnd";
-import * as Quadtree from "quadtree-lib";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { CollisionContext } from "./Contexts/CollisionContext";
 import FlowBlockNoArgsSVG from "./BlockSvg/FlowBlockNoArgsSVG";
@@ -11,30 +10,21 @@ import Crumbs from "./Crumbs";
 import uuid from "uuid/v4";
 
 function App() {
-  const vw = Math.max(
-    document.documentElement.clientWidth || 0,
-    window.innerWidth || 0
-  );
-  // will have to look into height as the canvas is scrollable
-  const vh = Math.max(
-    document.documentElement.clientHeight || 0,
-    window.innerHeight || 0
-  );
 
   const [workspace, setWorkspace] = useState(workspaceFromMonitor);
 
   const searchBlock = (id, func, block) => {
-    console.log(`searching for id = ${id}`);
-    console.log(block);
-    console.log(block.id);
-    if (block?.id == id){
+    // console.log(`searching for id = ${id}`);
+    // console.log(block);
+    // console.log(block.id);
+    if (block?.id === id){
       console.log(`Block with id ${id} found`);
       func(block);
     }
     else {
       if (Array.isArray(block)) {
-        console.log("is Array");
-        console.log(block.length);
+        // console.log("is Array");
+        // console.log(block.length);
         for (let i = 0; i < block.length; i++) {
           searchBlock(id, func, block[i]);
         }
@@ -76,7 +66,7 @@ function App() {
   return (
     <DndProvider backend={HTML5Backend}>
       <CollisionContext.Provider
-        value={{ quadtree: new Quadtree({ width: vw, height: vh }), addBlock, removeBlock, addBlockToCrumbs }}
+        value={{ addBlock, removeBlock, addBlockToCrumbs }}
       >
         <div className="App">
           {workspace.map((stack) => {

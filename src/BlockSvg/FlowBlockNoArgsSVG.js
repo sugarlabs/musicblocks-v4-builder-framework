@@ -4,21 +4,22 @@ import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setUpDragging } from "../Utils/Blocks";
+import {dropAreas as quadtree} from '../DropAreas';
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
-  const { quadtree, addBlockToCrumbs } = useContext(CollisionContext);
+  const { addBlockToCrumbs } = useContext(CollisionContext);
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({});
 
   const dragStartCallback = () => {
-    console.log(quadtree.pretty());
+    console.log(quadtree().pretty());
   }
 
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
       // console.log("Moved By 5 Pixels");
-      const colliding = quadtree.colliding({
+      const colliding = quadtree().colliding({
         x,
         y,
         width: 5,
@@ -32,8 +33,9 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
 
   const dragEndCallback = (x, y) => {
     console.log(`Drag Ending x = ${x} and y = ${y}`);
-    console.log(quadtree.pretty());
-    const collidingDropAreas = quadtree.colliding({
+    console.log(props.schema.id);
+    console.log(quadtree().pretty());
+    const collidingDropAreas = quadtree().colliding({
         x,
         y,
         width: 5,
@@ -42,8 +44,8 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
     let colliding = false;
     if (collidingDropAreas.length > 0) {
         colliding = true;
-        console.log(`Drag ended colliding with ${collidingDropAreas[0].id}`);
-        collidingDropAreas[0].addBlock(props.schema);
+        console.log(`Drag ended colliding with ${collidingDropAreas[0].index}`);
+        collidingDropAreas[0].addBlock(props.schema, collidingDropAreas[0].index);
     }
     if (colliding || !!props.nested) {
       // if the block(s) were nested and they were dragged then they
