@@ -1,22 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import FlowBlockNoArgsSVG from "./BlockSvg/FlowBlockNoArgsSVG";
+import { CollisionContext } from "./Contexts/CollisionContext";
 
 const Crumbs = React.memo((props) => {
-    const [blocks, setBlocks] = React.useState([... props.schema.blocks]);
-    const setBlockPosition = (blockId, newPosition) => {
-        const newBlocks = blocks.map((block) => {
-            if (block.id === blockId) {
-                const newBlock = {...block, position: {...newPosition}}
-                return newBlock;
-            }
-            return block;
-        });
-        setBlocks([...newBlocks]);
-    };
+
+    const { removeBlock } = useContext(CollisionContext);
+
+    const remove = (workspace, blockId) => {
+        return removeBlock(workspace, props.schema.id, blockId);
+    }
+
     return (
-        blocks.map((block, index) => {
+        props.schema.blocks.map((block, index) => {
             if (block.category === "flow" && block.args.length === 0) {
-                return <FlowBlockNoArgsSVG key={index} {...block} setPosition={setBlockPosition}/>
+                return <FlowBlockNoArgsSVG key={block.id} schema={block} removeBlock={remove}/>
             }
         })
     )

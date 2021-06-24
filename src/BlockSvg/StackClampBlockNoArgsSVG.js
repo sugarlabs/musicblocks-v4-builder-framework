@@ -4,32 +4,62 @@ import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setUpDragging } from "../Utils/Blocks";
-
-const updateDropZones = (quadtree, oldRef) => {};
+import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
+import {dropAreas as quadtree} from '../DropAreas';
 
 const StackClampBlockNoArgsSVG = React.memo((props) => {
-  const { quadtree } = useContext(CollisionContext);
+  console.log("StackClampBlockNoArgsSVG Rendered");
+  const { addBlock, removeBlock } = useContext(CollisionContext);
 
   const dropArea = useRef();
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
+  const add = (workspace, block, index) => {
+    return addBlock(workspace, props.schema.id, index, block);
+  };
+
+  const remove = (workspace, blockId) => {
+    return removeBlock(workspace, props.schema.id, blockId);
+  }
+
   const pushToQuadtree = () => {
-    const area = dropArea.current.getBoundingClientRect();
-    quadtree.push({
-      x: area.left,
-      y: area.top,
-      width: area.width,
-      height: area.height,
-      id: props.id,
-    });
+    const area = surroundingDiv.current.getBoundingClientRect();
+    console.log(`pushing to quadtree() x=${area.left} y=${area.top} width=${area.width} height=${area.height}`)
+    const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
+    if (dropZones?.length === props.schema.blocks.length + 1)
+      return;
+      // top: 1.8 * BlocksModel.BLOCK_SIZE,
+      //       left: 0.5 * BlocksModel.BLOCK_SIZE,
+      //       width: 3 * BlocksModel.BLOCK_SIZE,
+      //       height: 0.5 * BlocksModel.BLOCK_SIZE,
+    quadtree().push({
+        x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
+        y: area.top + (1.8) * BlocksModel.BLOCK_SIZE,
+        width: 3 * BlocksModel.BLOCK_SIZE,
+        height: 0.5 * BlocksModel.BLOCK_SIZE,
+        id: props.schema.id,
+        index: 0,
+        addBlock: add,
+    }, true);
+    props.schema.blocks.forEach((block, index) => quadtree().push({
+      x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
+      y: area.top + (index + 1 + 1.8) * BlocksModel.BLOCK_SIZE,
+      width: 3 * BlocksModel.BLOCK_SIZE,
+      height: 0.5 * BlocksModel.BLOCK_SIZE,
+      id: props.schema.id,
+      index: index + 1,
+      addBlock: add,
+    }, true));
+    // console.log(quadtree().pretty());
   };
 
   const dragStartCallback = () => {
-    const dropZones = quadtree.filter((ele) => ele.id === props.id);
+    console.log("Quadtree delete!");
+    const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
     console.log(dropZones);
-    dropZones && dropZones.contents.forEach((zone) => quadtree.remove(zone));
+    dropZones && dropZones.contents.forEach((zone) => quadtree().remove(zone));
   };
 
   useEffect(() => {
@@ -38,11 +68,13 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       dragStart: dragStartCallback,
       dragEnd: pushToQuadtree,
     });
-  }, []);
+  }, [props.schema.blocks.length]);
 
-  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.type];
-  const blockLines = props.blockHeightLines + 3;
+  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.schema.type];
+  const blockLines = (props.schema.blocks.length + 1) + 3;
 
+  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  console.log(props.schema.blocks);
   return (
     <div
       ref={surroundingDiv}
@@ -84,7 +116,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
                  h-${FlowBlockSVG.NOTCH_WIDTH}
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
                  h-${FlowBlockSVG.NOTCH_DISTANCE}
-                 v${10 * props.blockHeightLines}
+                 v${10 * (props.schema.blocks.length || 1)}
                  h${FlowBlockSVG.NOTCH_DISTANCE} 
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h${FlowBlockSVG.NOTCH_WIDTH} 
@@ -98,16 +130,57 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
         </svg>
 
         <div
-          ref={dropArea}
           style={{
             position: "absolute",
-            top: 2 * BlocksModel.BLOCK_SIZE,
+            top: (1.8) * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
-            backgroundColor: "green",
+            // backgroundColor: "yellow",
           }}
         ></div>
+
+        {props.schema.blocks.map((block, index) => <div
+          key={index}
+          style={{
+            position: "absolute",
+            top: (1.8 + index + 1) * BlocksModel.BLOCK_SIZE,
+            left: 0.5 * BlocksModel.BLOCK_SIZE,
+            width: 3 * BlocksModel.BLOCK_SIZE,
+            height: 0.5 * BlocksModel.BLOCK_SIZE,
+            // backgroundColor: "yellow",
+          }}
+        ></div>)}
+
+        <div
+          style={{
+            position: "absolute",
+            top: 1.8 * BlocksModel.BLOCK_SIZE,
+            left: 0.5 * BlocksModel.BLOCK_SIZE,
+            width: 3 * BlocksModel.BLOCK_SIZE,
+            height: 0.5 * BlocksModel.BLOCK_SIZE,
+            zIndex: 1000,
+          }}
+        >
+          {props.schema.blocks.map((block, index) => {
+            if (block.category === "flow" && block.args.length === 0) {
+              return (
+                <FlowBlockNoArgsSVG
+                  key={block.id}
+                  schema={{
+                    ...block,
+                    position: {
+                      x: 0,
+                      y: (index + 0.2) * BlocksModel.BLOCK_SIZE,
+                    },
+                  }}
+                  nested
+                  removeBlock={remove}
+                />
+              );
+            }
+          })}
+        </div>
       </div>
     </div>
   );
@@ -117,14 +190,5 @@ StackClampBlockNoArgsSVG.defaultProps = {
   blockHeightLines: 1,
   blockWidthLines: 5,
 };
-
-function collect(monitor) {
-  return {
-    item: monitor.getItem(),
-    itemType: monitor.getItemType(),
-    currentOffset: monitor.getSourceClientOffset(),
-    isDragging: monitor.isDragging(),
-  };
-}
 
 export default StackClampBlockNoArgsSVG;

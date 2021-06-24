@@ -32,6 +32,7 @@ some observations / assumptions
 /*
 @param dragCallback - function to call when being dragged
 */
+
 export const setUpDragging = (
   draggablePathRef,
   surroundingDivRef,
@@ -42,6 +43,8 @@ export const setUpDragging = (
     let layerX = 0;
     let layerY = 0;
     svg.on("mousedown", (event) => {
+      event.stopPropagation();
+      event.preventDefault();
       layerX = event.layerX;
       layerY = event.layerY;
     });
@@ -49,19 +52,20 @@ export const setUpDragging = (
       d3
         .drag()
         .on("start", (event) => {
-          console.log("Drag Started!");
           dragFunctions?.dragStart && dragFunctions.dragStart();
         })
         .on("drag", (event) => {
-          const divX = event.sourceEvent.clientX - layerX;
-          const divY = event.sourceEvent.clientY - layerY;
+          const divX = event.sourceEvent.pageX - layerX;
+          const divY = event.sourceEvent.pageY - layerY;
+          surroundingDivRef.current.style.position = 'fixed';
           surroundingDivRef.current.style.top = `${divY}px`;
           surroundingDivRef.current.style.left = `${divX}px`;
           dragFunctions?.dragging && dragFunctions.dragging(divX, divY);
         })
         .on("end", (event) => {
-            console.log("Drag Ended!");
-            dragFunctions?.dragEnd && dragFunctions.dragEnd();
+            const divX = event.sourceEvent.clientX - layerX;
+            const divY = event.sourceEvent.clientY - layerY;
+            dragFunctions?.dragEnd && dragFunctions.dragEnd(divX, divY);
         })
     );
   }

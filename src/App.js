@@ -1,41 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
+import Crumbs from "./Crumbs";
 import { DndProvider } from "react-dnd";
-import * as Quadtree from "quadtree-lib";
+import workspaceFromMonitor from "./DemoWorkspace";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { CollisionContext } from "./Contexts/CollisionContext";
-import FlowBlockNoArgsSVG from "./BlockSvg/FlowBlockNoArgsSVG";
 import StackClampBlockNoArgsSVG from "./BlockSvg/StackClampBlockNoArgsSVG";
-import { workspace } from "./DemoWorkspace";
-import Crumbs from "./Crumbs";
-import uuid from "uuid/v4";
 
 function App() {
-  const vw = Math.max(
-    document.documentElement.clientWidth || 0,
-    window.innerWidth || 0
-  );
-  // will have to look into height as the canvas is scrollable
-  const vh = Math.max(
-    document.documentElement.clientHeight || 0,
-    window.innerHeight || 0
-  );
+
+  const [workspace, setWorkspace] = useState(workspaceFromMonitor);
+
+  const searchBlock = (id, func, block) => {
+    // console.log(`searching for id = ${id}`);
+    // console.log(block);
+    // console.log(block.id);
+    if (block?.id === id){
+      console.log(`Block with id ${id} found`);
+      func(block);
+    }
+    else {
+      if (Array.isArray(block)) {
+        // console.log("is Array");
+        // console.log(block.length);
+        for (let i = 0; i < block.length; i++) {
+          searchBlock(id, func, block[i]);
+        }
+      } else {
+        for (let i = 0; i < block?.blocks?.length; i++) {
+          searchBlock(id, func, block.blocks[i]);
+        }
+      }
+    }
+  }
+
+  // stackId - id of parent block inside which the block is to be added
+  // index - index in blocks array of the parent at which the block is to be added
+  // schema - schema of the block to be added
+  const addBlock = (workspace, stackId, index, schema) => {
+    const newState = [...workspace];
+    searchBlock(stackId, (block) => {
+      block.blocks = [...block.blocks.slice(0, index), schema, ...block.blocks.slice(index)];
+    }, newState);
+    return newState;
+  }
+
+  const addBlockToCrumbs = (workspace, schema) => {
+    console.log("Add Block to Crumbs executed!!!...");
+    const newState = [...workspace];
+    newState[0].blocks.push(schema);
+    console.log(newState);
+    return newState;
+  }
+
+  const removeBlock = (workspace, stackId, blockId) => {
+    const newState = [...workspace];
+    searchBlock(stackId, (block) => {
+      block.blocks = block.blocks.filter((block) => block.id !== blockId);
+    }, newState);
+    return newState;
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <CollisionContext.Provider
-        value={{ quadtree: new Quadtree({ width: vw, height: vh }) }}
+        value={{ workspace, setWorkspace, addBlock, removeBlock, addBlockToCrumbs }}
       >
         <div className="App">
-          {/* <StackClampBlockNoArgsSVG type="start" />
-          <FlowBlockNoArgsSVG type="TYPE1" color="green" />
-          <FlowBlockNoArgsSVG type="TYPE2" x={300} y={300} color="yellow" /> */}
           {workspace.map((stack) => {
-            switch (stack.category) {
+            switch (stack.type) {
               case "crumbs":
                 console.log("CRUMBS");
                 return <Crumbs schema={stack} />;
               case "start":
-                return <StackClampBlockNoArgsSVG schema={stack} type="start" />;
+                return <StackClampBlockNoArgsSVG schema={stack} />;
               case "action":
                 return (
                   <StackClampBlockNoArgsSVG schema={stack} type="action" />
@@ -44,7 +82,6 @@ function App() {
                 console.log(`Invalid category ${stack.category}`);
             }
           })}
-          <StackClampBlockNoArgsSVG type="start" id={uuid()}/>
         </div>
       </CollisionContext.Provider>
     </DndProvider>
