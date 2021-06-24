@@ -16,13 +16,12 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
-  const add = (block, index) => {
-    console.log(block);
-    addBlock(props.schema.id, index, block);
+  const add = (workspace, block, index) => {
+    return addBlock(workspace, props.schema.id, index, block);
   };
 
-  const remove = (blockId) => {
-    removeBlock(props.schema.id, blockId);
+  const remove = (workspace, blockId) => {
+    return removeBlock(workspace, props.schema.id, blockId);
   }
 
   const pushToQuadtree = () => {
@@ -53,7 +52,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       index: index + 1,
       addBlock: add,
     }, true));
-    console.log(quadtree().pretty());
+    // console.log(quadtree().pretty());
   };
 
   const dragStartCallback = () => {
@@ -142,6 +141,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
         ></div>
 
         {props.schema.blocks.map((block, index) => <div
+          key={index}
           style={{
             position: "absolute",
             top: (1.8 + index + 1) * BlocksModel.BLOCK_SIZE,
@@ -166,7 +166,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
             if (block.category === "flow" && block.args.length === 0) {
               return (
                 <FlowBlockNoArgsSVG
-                  key={index}
+                  key={block.id}
                   schema={{
                     ...block,
                     position: {

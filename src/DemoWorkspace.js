@@ -11,7 +11,7 @@ const workspace = [
 					x: 500,
 					y: 500
 				},
-                color: "green",
+                color: "red",
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
@@ -20,8 +20,56 @@ const workspace = [
 			{
 				id: "1-2",
 				position: {
+					x: 200,
+					y: 500
+				},
+                color: "blue",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+                args: []
+			},
+			{
+				id: "1-3",
+				position: {
 					x: 700,
 					y: 500
+				},
+                color: "yellow",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+                args: []
+			},
+			{
+				id: "1-4",
+				position: {
+					x: 1000,
+					y: 500
+				},
+                color: "green",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+                args: []
+			},
+			{
+				id: "1-5",
+				position: {
+					x: 500,
+					y: 800
+				},
+                color: "orange",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+                args: []
+			},
+			{
+				id: "1-6",
+				position: {
+					x: 800,
+					y: 100
 				},
                 color: "pink",
 				category: "flow",

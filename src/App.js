@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import "./App.css";
+import Crumbs from "./Crumbs";
 import { DndProvider } from "react-dnd";
+import workspaceFromMonitor from "./DemoWorkspace";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { CollisionContext } from "./Contexts/CollisionContext";
-import FlowBlockNoArgsSVG from "./BlockSvg/FlowBlockNoArgsSVG";
 import StackClampBlockNoArgsSVG from "./BlockSvg/StackClampBlockNoArgsSVG";
-import workspaceFromMonitor from "./DemoWorkspace";
-import Crumbs from "./Crumbs";
-import uuid from "uuid/v4";
 
 function App() {
 
@@ -39,34 +37,34 @@ function App() {
   // stackId - id of parent block inside which the block is to be added
   // index - index in blocks array of the parent at which the block is to be added
   // schema - schema of the block to be added
-  const addBlock = (stackId, index, schema) => {
+  const addBlock = (workspace, stackId, index, schema) => {
     const newState = [...workspace];
     searchBlock(stackId, (block) => {
       block.blocks = [...block.blocks.slice(0, index), schema, ...block.blocks.slice(index)];
     }, newState);
-    setWorkspace(newState);
+    return newState;
   }
 
-  const addBlockToCrumbs = (schema) => {
+  const addBlockToCrumbs = (workspace, schema) => {
     console.log("Add Block to Crumbs executed!!!...");
     const newState = [...workspace];
     newState[0].blocks.push(schema);
     console.log(newState);
-    setWorkspace(newState);
+    return newState;
   }
 
-  const removeBlock = (stackId, blockId) => {
+  const removeBlock = (workspace, stackId, blockId) => {
     const newState = [...workspace];
     searchBlock(stackId, (block) => {
       block.blocks = block.blocks.filter((block) => block.id !== blockId);
     }, newState);
-    setWorkspace(newState);
+    return newState;
   }
 
   return (
     <DndProvider backend={HTML5Backend}>
       <CollisionContext.Provider
-        value={{ addBlock, removeBlock, addBlockToCrumbs }}
+        value={{ workspace, setWorkspace, addBlock, removeBlock, addBlockToCrumbs }}
       >
         <div className="App">
           {workspace.map((stack) => {

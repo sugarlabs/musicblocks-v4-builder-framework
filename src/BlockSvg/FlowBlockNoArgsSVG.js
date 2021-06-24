@@ -7,18 +7,15 @@ import { pollingTest, setUpDragging } from "../Utils/Blocks";
 import {dropAreas as quadtree} from '../DropAreas';
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
-  const { addBlockToCrumbs } = useContext(CollisionContext);
+  const { workspace, setWorkspace, addBlockToCrumbs } = useContext(CollisionContext);
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({});
 
-  const dragStartCallback = () => {
-    console.log(quadtree().pretty());
-  }
+  const dragStartCallback = () => {}
 
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
-      // console.log("Moved By 5 Pixels");
       const colliding = quadtree().colliding({
         x,
         y,
@@ -32,9 +29,6 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
   };
 
   const dragEndCallback = (x, y) => {
-    console.log(`Drag Ending x = ${x} and y = ${y}`);
-    console.log(props.schema.id);
-    console.log(quadtree().pretty());
     const collidingDropAreas = quadtree().colliding({
         x,
         y,
@@ -44,25 +38,26 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
     let colliding = false;
     if (collidingDropAreas.length > 0) {
         colliding = true;
-        console.log(`Drag ended colliding with ${collidingDropAreas[0].index}`);
-        collidingDropAreas[0].addBlock(props.schema, collidingDropAreas[0].index);
-    }
-    if (colliding || !!props.nested) {
-      // if the block(s) were nested and they were dragged then they
-      // are to be removed from the previous block and added to CRUMBS
-      // if the block was previously in CRUMBS or inside another block
-      // and it is colliding at the end of drag then also it is to be
-      // removed from its previous position and added
-      props.removeBlock(props.schema.id);
-    }
-    console.log(`Block Colliding = ${colliding}`);
-    console.log(`nested = ${!!props.nested}`);
-    if (!colliding && !!props.nested) {
-      // if the block is not colliding at the end of the drag and is
-      // nested then the block is to be added to crumbs
-      console.log("Block is going to be added to CRUMBS");
-      addBlockToCrumbs({...props.schema, position: {x, y}});
-    }
+      }
+      let newState = workspace;
+      if (colliding || !!props.nested) {
+        // if the block(s) were nested and they were dragged then they
+        // are to be removed from the previous block and added to CRUMBS
+        // if the block was previously in CRUMBS or inside another block
+        // and it is colliding at the end of drag then also it is to be
+        // removed from its previous position and added
+        newState = props.removeBlock(newState, props.schema.id);
+      }
+      if (colliding) {
+        newState = collidingDropAreas[0].addBlock(newState, props.schema, collidingDropAreas[0].index);
+      }
+      if (!colliding && !!props.nested) {
+        // if the block is not colliding at the end of the drag and is
+        // nested then the block is to be added to crumbs
+        console.log("Block is going to be added to CRUMBS");
+        newState = addBlockToCrumbs(newState, {...props.schema, position: {x, y}});
+      }
+      setWorkspace(newState);
   }
 
   useEffect(() => {

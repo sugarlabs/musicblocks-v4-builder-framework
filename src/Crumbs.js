@@ -6,14 +6,14 @@ const Crumbs = React.memo((props) => {
 
     const { removeBlock } = useContext(CollisionContext);
 
-    const remove = (blockId) => {
-        removeBlock(props.schema.id, blockId);
+    const remove = (workspace, blockId) => {
+        return removeBlock(workspace, props.schema.id, blockId);
     }
 
     return (
         props.schema.blocks.map((block, index) => {
             if (block.category === "flow" && block.args.length === 0) {
-                return <FlowBlockNoArgsSVG key={index} schema={block} removeBlock={remove}/>
+                return <FlowBlockNoArgsSVG key={block.id} schema={block} removeBlock={remove}/>
             }
         })
     )
