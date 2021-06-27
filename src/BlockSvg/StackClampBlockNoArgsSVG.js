@@ -159,7 +159,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
-            zIndex: 1000,
+            zIndex: 999,
           }}
         >
           {props.schema.blocks.map((block, index) => {
