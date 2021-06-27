@@ -3,7 +3,7 @@ import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
-import { pollingTest, setUpDragging } from "../Utils/Blocks";
+import { pollingTest, setupDragging } from "../Utils/Blocks";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import {dropAreas as quadtree} from '../DropAreas';
 
@@ -64,17 +64,14 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
 
   useEffect(() => {
     pushToQuadtree();
-    setUpDragging(drag, surroundingDiv, {
+    setupDragging(drag, surroundingDiv, {
       dragStart: dragStartCallback,
       dragEnd: pushToQuadtree,
     });
   }, [props.schema.blocks.length]);
 
-  const mul = BlocksModel.BLOCK_MULTIPLIERS[props.schema.type];
   const blockLines = (props.schema.blocks.length + 1) + 3;
 
-  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  console.log(props.schema.blocks);
   return (
     <div
       ref={surroundingDiv}
@@ -187,7 +184,6 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
 });
 
 StackClampBlockNoArgsSVG.defaultProps = {
-  blockHeightLines: 1,
   blockWidthLines: 5,
 };
 

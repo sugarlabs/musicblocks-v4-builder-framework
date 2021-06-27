@@ -33,7 +33,7 @@ some observations / assumptions
 @param dragCallback - function to call when being dragged
 */
 
-export const setUpDragging = (
+export const setupDragging = (
   draggablePathRef,
   surroundingDivRef,
   dragFunctions

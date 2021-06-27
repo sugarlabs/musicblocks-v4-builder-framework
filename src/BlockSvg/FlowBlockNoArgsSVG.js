@@ -3,7 +3,7 @@ import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
-import { pollingTest, setUpDragging } from "../Utils/Blocks";
+import { pollingTest, setupDragging } from "../Utils/Blocks";
 import {dropAreas as quadtree} from '../DropAreas';
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
@@ -61,7 +61,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
   }
 
   useEffect(() => {
-    setUpDragging(drag, surroundingDiv, { dragging: draggingCallback, dragEnd: dragEndCallback, dragStart: dragStartCallback }, !!props.nested);
+    setupDragging(drag, surroundingDiv, { dragging: draggingCallback, dragEnd: dragEndCallback, dragStart: dragStartCallback }, !!props.nested);
   }, [drag.current]);
 
   const blockLines = 1 + FlowBlockSVG.NOTCH_HEIGHT / 10;
