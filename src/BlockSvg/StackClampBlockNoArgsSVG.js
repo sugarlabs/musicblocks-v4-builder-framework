@@ -6,10 +6,13 @@ import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setupDragging } from "../Utils/Blocks";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import {dropAreas as quadtree} from '../DropAreas';
+import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
 
 const StackClampBlockNoArgsSVG = React.memo((props) => {
   console.log("StackClampBlockNoArgsSVG Rendered");
   const { addBlock, removeBlock } = useContext(CollisionContext);
+
+  const blockLinesTill = [];
 
   const dropArea = useRef();
   const drag = useRef(null);
@@ -30,22 +33,13 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
     const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
-    quadtree().push({
-        x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
-        y: area.top + (1.8) * BlocksModel.BLOCK_SIZE,
-        width: 3 * BlocksModel.BLOCK_SIZE,
-        height: 0.5 * BlocksModel.BLOCK_SIZE,
-        id: props.schema.id,
-        index: 0,
-        addBlock: add,
-    }, true);
-    props.schema.blocks.forEach((block, index) => quadtree().push({
+    blockLinesTill.forEach((line, index) => quadtree().push({
       x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
-      y: area.top + (index + 1 + 1.8) * BlocksModel.BLOCK_SIZE,
+      y: area.top + (1.8 + line) * BlocksModel.BLOCK_SIZE,
       width: 3 * BlocksModel.BLOCK_SIZE,
       height: 0.5 * BlocksModel.BLOCK_SIZE,
       id: props.schema.id,
-      index: index + 1,
+      index: index,
       addBlock: add,
     }, true));
   };
@@ -58,14 +52,32 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
   };
 
   useEffect(() => {
+    dragStartCallback();
     pushToQuadtree();
     setupDragging(drag, surroundingDiv, {
       dragStart: dragStartCallback,
       dragEnd: pushToQuadtree,
     });
-  }, [props.schema.blocks.length]);
+  });
 
-  const blockLines = (props.schema.blocks.length + 1) + 3;
+  const getBlockLines = (schema) => {
+    let lines = 0;
+    if (schema.id === props.schema.id)
+      blockLinesTill.push(lines);
+    for (let i = 0; i < (schema?.blocks?.length || 0); i++) {
+      const temp = getBlockLines(schema.blocks[i]);
+      lines += temp;
+      if (schema.id === props.schema.id)
+        blockLinesTill.push(lines);
+    }
+    lines += schema.defaultBlockHeightLines;
+    if (schema.category != "flow" && schema.blocks.length === 0)
+      lines++;
+    return lines;
+  }
+
+  const blockLines = getBlockLines(props.schema);
+  console.log(blockLinesTill);
 
   return (
     <div
@@ -108,7 +120,7 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
                  h-${FlowBlockSVG.NOTCH_WIDTH}
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
                  h-${FlowBlockSVG.NOTCH_DISTANCE}
-                 v${10 * (props.schema.blocks.length || 1)}
+                 v${10 * ((blockLines - props.schema.defaultBlockHeightLines) || 1)}
                  h${FlowBlockSVG.NOTCH_DISTANCE} 
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h${FlowBlockSVG.NOTCH_WIDTH} 
@@ -121,22 +133,12 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
           />
         </svg>
 
-        <div
-          style={{
-            position: "absolute",
-            top: (1.8) * BlocksModel.BLOCK_SIZE,
-            left: 0.5 * BlocksModel.BLOCK_SIZE,
-            width: 3 * BlocksModel.BLOCK_SIZE,
-            height: 0.5 * BlocksModel.BLOCK_SIZE,
-            // backgroundColor: "yellow",
-          }}
-        ></div>
-
-        {props.schema.blocks.map((block, index) => <div
+        {blockLinesTill.map((lines, index) => <div
           key={index}
           style={{
             position: "absolute",
-            top: (1.8 + index + 1) * BlocksModel.BLOCK_SIZE,
+            zIndex: "11000",
+            top: (1.8 + lines) * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
@@ -163,7 +165,22 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
                     ...block,
                     position: {
                       x: 0,
-                      y: (index + 0.2) * BlocksModel.BLOCK_SIZE,
+                      y: (blockLinesTill[index] + 0.2) * BlocksModel.BLOCK_SIZE,
+                    },
+                  }}
+                  nested
+                  removeBlock={remove}
+                />
+              );
+            } else if (block.category === "flowClamp" && block.args.length === 0) {
+              return (
+                <FlowClampBlockNoArgs
+                  key={block.id}
+                  schema={{
+                    ...block,
+                    position: {
+                      x: 0,
+                      y: (blockLinesTill[index] + 0.2) * BlocksModel.BLOCK_SIZE,
                     },
                   }}
                   nested

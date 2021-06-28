@@ -15,6 +15,7 @@ const workspace = [
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
                 args: []
 			},
 			{
@@ -27,6 +28,7 @@ const workspace = [
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
                 args: []
 			},
 			{
@@ -39,6 +41,7 @@ const workspace = [
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
                 args: []
 			},
 			{
@@ -51,6 +54,7 @@ const workspace = [
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
                 args: []
 			},
 			{
@@ -63,6 +67,7 @@ const workspace = [
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
                 args: []
 			},
 			{
@@ -75,6 +80,7 @@ const workspace = [
 				category: "flow",
 				type: "start",
                 blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
                 args: []
 			},
 			{
@@ -87,6 +93,88 @@ const workspace = [
 				category: "flowClamp",
 				type: "start",
                 blockWidthLines: 4,
+				defaultBlockHeightLines: 2,
+                args: [],
+				blocks: []
+			},
+			{
+				id: "1-8",
+				position: {
+					x: 800,
+					y: 800
+				},
+                color: "teal",
+				category: "flowClamp",
+				type: "start",
+                blockWidthLines: 4,
+				defaultBlockHeightLines: 2,
+                args: [],
+				blocks: []
+			},
+			{
+				id: "1-9",
+				position: {
+					x: 200,
+					y: 800
+				},
+                color: "teal",
+				category: "flowClamp",
+				type: "start",
+                blockWidthLines: 4,
+				defaultBlockHeightLines: 2,
+                args: [],
+				blocks: []
+			},
+			{
+				id: "1-10",
+				position: {
+					x: 1100,
+					y: 600
+				},
+                color: "green",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
+                args: []
+			},
+			{
+				id: "1-11",
+				position: {
+					x: 600,
+					y: 900
+				},
+                color: "orange",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
+                args: []
+			},
+			{
+				id: "1-12",
+				position: {
+					x: 900,
+					y: 200
+				},
+                color: "pink",
+				category: "flow",
+				type: "start",
+                blockWidthLines: 3,
+				defaultBlockHeightLines: 1,
+                args: []
+			},
+			{
+				id: "1-13",
+				position: {
+					x: 150,
+					y: 150
+				},
+                color: "teal",
+				category: "flowClamp",
+				type: "start",
+                blockWidthLines: 4,
+				defaultBlockHeightLines: 2,
                 args: [],
 				blocks: []
 			}
@@ -101,6 +189,7 @@ const workspace = [
 			x: 200,
 			y: 200
 		},
+		defaultBlockHeightLines: 3,
         blocks: []
     }
 ]

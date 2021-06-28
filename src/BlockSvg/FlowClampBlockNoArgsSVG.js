@@ -15,11 +15,13 @@ import {dropAreas as quadtree} from '../DropAreas';
 
 const FlowClampBlockNoArgs = React.memo((props) => {
 
-  const { addBlock, removeBlock } = useContext(CollisionContext);
+  const { addBlock, workspace, setWorkspace, addBlockToCrumbs, removeBlock } = useContext(CollisionContext);
+  const blockLinesTill = [];
 
   // refs
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
+  const lastPollingPosition = useRef({});
 
   // add blocks to the clamp when they are dropped in the drop Areas
   const add = (workspace, block, index) => {
@@ -36,22 +38,13 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
-    quadtree().push({
-        x: area.left + ClampBlockSVG.STEM_WIDTH * BlocksModel.BLOCK_SIZE,
-        y: area.top + (0.8) * BlocksModel.BLOCK_SIZE,
-        width: 3 * BlocksModel.BLOCK_SIZE,
-        height: 0.5 * BlocksModel.BLOCK_SIZE,
-        id: props.schema.id,
-        index: 0,
-        addBlock: add,
-    }, true);
-    props.schema.blocks.forEach((block, index) => quadtree().push({
+    blockLinesTill.forEach((line, index) => quadtree().push({
       x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
-      y: area.top + (index + 1 + 0.8) * BlocksModel.BLOCK_SIZE,
+      y: area.top + (line + 0.8) * BlocksModel.BLOCK_SIZE,
       width: 3 * BlocksModel.BLOCK_SIZE,
       height: 0.5 * BlocksModel.BLOCK_SIZE,
       id: props.schema.id,
-      index: index + 1,
+      index: index,
       addBlock: add,
     }, true));
   };
@@ -64,24 +57,90 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     dropZones.forEach((zone) => quadtree().remove(zone));
   };
 
-  const blockLines = (props.schema.blocks.length + 1) + 2 + FlowBlockSVG.NOTCH_HEIGHT / 10;
+  const draggingCallback = (x, y) => {
+    if (pollingTest(lastPollingPosition, { x, y }, 5)) {
+      const colliding = quadtree().colliding({
+        x,
+        y,
+        width: 5,
+        height: 5,
+      });
+      if (colliding.length > 0) {
+        console.log(colliding[0].id);
+      }
+    }
+  };
+
+  const dragEndCallback = (x, y) => {
+    const collidingDropAreas = quadtree().colliding({
+      x,
+      y,
+      width: 5,
+      height: 5,
+    });
+    let colliding = false;
+    if (collidingDropAreas.length > 0) {
+      colliding = true;
+    }
+    let newState = workspace;
+    if (colliding || !!props.nested) {
+      // if the block(s) were nested and they were dragged then they
+      // are to be removed from the previous block and added to CRUMBS
+      // if the block was previously in CRUMBS or inside another block
+      // and it is colliding at the end of drag then also it is to be
+      // removed from its previous position and added
+      newState = props.removeBlock(newState, props.schema.id);
+    }
+    if (colliding) {
+      newState = collidingDropAreas[0].addBlock(newState, props.schema, collidingDropAreas[0].index);
+    }
+    if (!colliding && !!props.nested) {
+      // if the block is not colliding at the end of the drag and is
+      // nested then the block is to be added to crumbs
+      console.log("Block is going to be added to CRUMBS");
+      newState = addBlockToCrumbs(newState, { ...props.schema, position: { x, y } });
+    }
+    setWorkspace(newState);
+    if (!colliding && !props.nested)
+      pushToQuadtree();
+  }
 
   useEffect(() => {
+    dragStartCallback();
     pushToQuadtree();
     setupDragging(drag, surroundingDiv, {
       dragStart: dragStartCallback,
-      dragEnd: pushToQuadtree,
+      dragging: draggingCallback,
+      dragEnd: dragEndCallback,
     });
-  }, [props.schema.blocks.length]);
+  });
 
+  const getBlockLines = (schema) => {
+    let lines = 0;
+    if (schema.id === props.schema.id)
+      blockLinesTill.push(lines);
+    for (let i = 0; i < (schema?.blocks?.length || 0); i++) {
+      const temp = getBlockLines(schema.blocks[i]);
+      lines += temp;
+      if (schema.id === props.schema.id)
+        blockLinesTill.push(lines);
+    }
+    lines += schema.defaultBlockHeightLines;
+    if (schema.category != "flow" && schema.blocks.length === 0)
+      lines++;
+    return lines;
+  }
+
+  const blockLines = getBlockLines(props.schema);
+  console.warn(blockLines);
   return (
     <div
       ref={surroundingDiv}
       style={{
         display: "inline-block",
         position: "absolute",
-        top: 100,
-        left: 100,
+        top: props.schema.position.y,
+        left: props.schema.position.x,
         width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
       }}
     >
@@ -93,9 +152,9 @@ const FlowClampBlockNoArgs = React.memo((props) => {
         }}
       >
         <svg
-          viewBox={`0 0 ${props.blockWidthLines * 10} ${blockLines * 10}`}
+          viewBox={`0 0 ${props.blockWidthLines * 10} ${(blockLines + FlowBlockSVG.NOTCH_HEIGHT / 10) * 10}`}
           width={`${BlocksModel.BLOCK_SIZE * props.blockWidthLines}px`}
-          height={`${BlocksModel.BLOCK_SIZE * blockLines}px`}
+          height={`${BlocksModel.BLOCK_SIZE * (blockLines + FlowBlockSVG.NOTCH_HEIGHT / 10)}px`}
         >
           <path
             ref={drag}
@@ -114,43 +173,31 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                   h-${FlowBlockSVG.NOTCH_WIDTH}
                   v-${FlowBlockSVG.NOTCH_HEIGHT}
                   h-${FlowBlockSVG.NOTCH_DISTANCE}
-                  v${10 * (1)}
+                  v${10 * ((blockLines - props.schema.defaultBlockHeightLines) || 1)}
                   h${FlowBlockSVG.NOTCH_DISTANCE} 
                   v${FlowBlockSVG.NOTCH_HEIGHT}
                   h${FlowBlockSVG.NOTCH_WIDTH} 
                   v-${FlowBlockSVG.NOTCH_HEIGHT}
                   h${(ClampBlockSVG.LOWER_BRANCH * props.blockWidthLines * 10) - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}
-                  v${10 * (props.schema.blocks.length || 1)}
+                  v${10 * (1)}
                   h-${(ClampBlockSVG.LOWER_BRANCH * props.blockWidthLines * 10) + (ClampBlockSVG.STEM_WIDTH * 10) - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}
                   v${FlowBlockSVG.NOTCH_HEIGHT}
                   h-${FlowBlockSVG.NOTCH_WIDTH}
                   v-${FlowBlockSVG.NOTCH_HEIGHT}
                   h-${FlowBlockSVG.NOTCH_DISTANCE}
-                  v-${(blockLines) * 10}`}
+                  v-${((blockLines + FlowBlockSVG.NOTCH_HEIGHT / 10)) * 10}`}
           />
         </svg>
 
-        {/* rendering DOM element for drop zones */}
-        <div
-          style={{
-            position: "absolute",
-            top: (0.8) * BlocksModel.BLOCK_SIZE,
-            left: ClampBlockSVG.STEM_WIDTH * BlocksModel.BLOCK_SIZE,
-            width: 3 * BlocksModel.BLOCK_SIZE,
-            height: 0.5 * BlocksModel.BLOCK_SIZE,
-            // backgroundColor: "yellow",
-          }}
-        ></div>
-
-        {props.schema.blocks.map((block, index) => <div
+        {blockLinesTill.map((lines, index) => <div
           key={index}
           style={{
             position: "absolute",
-            top: (0.8 + index + 1) * BlocksModel.BLOCK_SIZE,
+            top: (0.8 + lines) * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
-            // backgroundColor: "yellow",
+            // backgroundColor: "black",
           }}
         ></div>)}
 
@@ -173,7 +220,22 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                     ...block,
                     position: {
                       x: 0,
-                      y: (index + 0.2) * BlocksModel.BLOCK_SIZE,
+                      y: (blockLinesTill[index] + 0.2) * BlocksModel.BLOCK_SIZE,
+                    },
+                  }}
+                  nested
+                  removeBlock={remove}
+                />
+              );
+            } else if (block.category === "flowClamp" && block.args.length === 0) {
+              return (
+                <FlowClampBlockNoArgs
+                  key={block.id}
+                  schema={{
+                    ...block,
+                    position: {
+                      x: 0,
+                      y: (blockLinesTill[index] + 0.2) * BlocksModel.BLOCK_SIZE,
                     },
                   }}
                   nested

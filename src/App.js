@@ -71,12 +71,12 @@ function App() {
             switch (stack.type) {
               case "crumbs":
                 console.log("CRUMBS");
-                return <Crumbs schema={stack} />;
+                return <Crumbs key={stack.id} schema={stack} />;
               case "start":
-                return <StackClampBlockNoArgsSVG schema={stack} />;
+                return <StackClampBlockNoArgsSVG key={stack.id} schema={stack} />;
               case "action":
                 return (
-                  <StackClampBlockNoArgsSVG schema={stack} type="action" />
+                  <StackClampBlockNoArgsSVG key={stack.id} schema={stack} type="action" />
                 );
               default:
                 console.log(`Invalid category ${stack.category}`);
