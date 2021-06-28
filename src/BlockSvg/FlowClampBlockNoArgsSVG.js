@@ -1,8 +1,10 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useContext} from 'react';
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
+import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setupDragging } from "../Utils/Blocks";
+import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import {dropAreas as quadtree} from '../DropAreas';
 
 /*
@@ -13,12 +15,20 @@ import {dropAreas as quadtree} from '../DropAreas';
 
 const FlowClampBlockNoArgs = React.memo((props) => {
 
-  console.log(props.schema);
-  console.log(props);
+  const { addBlock, removeBlock } = useContext(CollisionContext);
 
   // refs
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
+
+  // add blocks to the clamp when they are dropped in the drop Areas
+  const add = (workspace, block, index) => {
+    return addBlock(workspace, props.schema.id, index, block);
+  };
+
+  const remove = (workspace, blockId) => {
+    return removeBlock(workspace, props.schema.id, blockId);
+  }
 
   // adds the drop areas of the clamp to quadtree
   const pushToQuadtree = () => {
@@ -33,16 +43,16 @@ const FlowClampBlockNoArgs = React.memo((props) => {
         height: 0.5 * BlocksModel.BLOCK_SIZE,
         id: props.schema.id,
         index: 0,
-        // addBlock: add,
+        addBlock: add,
     }, true);
     props.schema.blocks.forEach((block, index) => quadtree().push({
       x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
-      y: area.top + (index + 1 + 1.8) * BlocksModel.BLOCK_SIZE,
+      y: area.top + (index + 1 + 0.8) * BlocksModel.BLOCK_SIZE,
       width: 3 * BlocksModel.BLOCK_SIZE,
       height: 0.5 * BlocksModel.BLOCK_SIZE,
       id: props.schema.id,
       index: index + 1,
-      // addBlock: add,
+      addBlock: add,
     }, true));
   };
 
@@ -54,7 +64,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     dropZones.forEach((zone) => quadtree().remove(zone));
   };
 
-  const blockLines = (1) + 2 + FlowBlockSVG.NOTCH_HEIGHT / 10;
+  const blockLines = (props.schema.blocks.length + 1) + 2 + FlowBlockSVG.NOTCH_HEIGHT / 10;
 
   useEffect(() => {
     pushToQuadtree();
@@ -62,7 +72,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
       dragStart: dragStartCallback,
       dragEnd: pushToQuadtree,
     });
-  }, []);
+  }, [props.schema.blocks.length]);
 
   return (
     <div
@@ -110,7 +120,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                   h${FlowBlockSVG.NOTCH_WIDTH} 
                   v-${FlowBlockSVG.NOTCH_HEIGHT}
                   h${(ClampBlockSVG.LOWER_BRANCH * props.blockWidthLines * 10) - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}
-                  v10
+                  v${10 * (props.schema.blocks.length || 1)}
                   h-${(ClampBlockSVG.LOWER_BRANCH * props.blockWidthLines * 10) + (ClampBlockSVG.STEM_WIDTH * 10) - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}
                   v${FlowBlockSVG.NOTCH_HEIGHT}
                   h-${FlowBlockSVG.NOTCH_WIDTH}
@@ -132,29 +142,29 @@ const FlowClampBlockNoArgs = React.memo((props) => {
           }}
         ></div>
 
-        {/* {props.schema.blocks.map((block, index) => <div
+        {props.schema.blocks.map((block, index) => <div
           key={index}
           style={{
             position: "absolute",
-            top: (1.8 + index + 1) * BlocksModel.BLOCK_SIZE,
+            top: (0.8 + index + 1) * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
             // backgroundColor: "yellow",
           }}
-        ></div>)} */}
+        ></div>)}
 
         <div
           style={{
             position: "absolute",
-            top: 1.8 * BlocksModel.BLOCK_SIZE,
+            top: 0.8 * BlocksModel.BLOCK_SIZE,
             left: 0.5 * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
             zIndex: 999,
           }}
         >
-          {/* {props.schema.blocks.map((block, index) => {
+          {props.schema.blocks.map((block, index) => {
             if (block.category === "flow" && block.args.length === 0) {
               return (
                 <FlowBlockNoArgsSVG
@@ -171,7 +181,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                 />
               );
             }
-          })} */}
+          })}
         </div>
       </div>
     </div>
