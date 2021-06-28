@@ -30,10 +30,6 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
     const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
-      // top: 1.8 * BlocksModel.BLOCK_SIZE,
-      //       left: 0.5 * BlocksModel.BLOCK_SIZE,
-      //       width: 3 * BlocksModel.BLOCK_SIZE,
-      //       height: 0.5 * BlocksModel.BLOCK_SIZE,
     quadtree().push({
         x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
         y: area.top + (1.8) * BlocksModel.BLOCK_SIZE,
@@ -52,14 +48,13 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       index: index + 1,
       addBlock: add,
     }, true));
-    // console.log(quadtree().pretty());
   };
 
   const dragStartCallback = () => {
-    console.log("Quadtree delete!");
-    const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
-    console.log(dropZones);
-    dropZones && dropZones.contents.forEach((zone) => quadtree().remove(zone));
+    const dropZones = quadtree().where({
+      id: props.schema.id
+    });
+    dropZones.forEach((zone) => quadtree().remove(zone));
   };
 
   useEffect(() => {
@@ -78,8 +73,8 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       style={{
         display: "inline-block",
         position: "absolute",
-        top: 300,
-        left: 900,
+        top: props.schema.position.y,
+        left: props.schema.position.x,
         width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
       }}
     >

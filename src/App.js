@@ -6,7 +6,6 @@ import workspaceFromMonitor from "./DemoWorkspace";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { CollisionContext } from "./Contexts/CollisionContext";
 import StackClampBlockNoArgsSVG from "./BlockSvg/StackClampBlockNoArgsSVG";
-import FlowClampBlockNoArgs from "./BlockSvg/FlowClampBlockNoArgsSVG";
 
 function App() {
 
@@ -83,7 +82,6 @@ function App() {
                 console.log(`Invalid category ${stack.category}`);
             }
           })}
-          <FlowClampBlockNoArgs />
         </div>
       </CollisionContext.Provider>
     </DndProvider>

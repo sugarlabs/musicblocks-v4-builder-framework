@@ -76,6 +76,19 @@ const workspace = [
 				type: "start",
                 blockWidthLines: 3,
                 args: []
+			},
+			{
+				id: "1-7",
+				position: {
+					x: 100,
+					y: 100
+				},
+                color: "teal",
+				category: "flowClamp",
+				type: "start",
+                blockWidthLines: 4,
+                args: [],
+				blocks: []
 			}
 		]
 	},

@@ -3,6 +3,7 @@ import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import { pollingTest, setupDragging } from "../Utils/Blocks";
+import {dropAreas as quadtree} from '../DropAreas';
 
 /*
   props needed
@@ -12,16 +13,54 @@ import { pollingTest, setupDragging } from "../Utils/Blocks";
 
 const FlowClampBlockNoArgs = React.memo((props) => {
 
+  console.log(props.schema);
+  console.log(props);
+
   // refs
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
 
+  // adds the drop areas of the clamp to quadtree
+  const pushToQuadtree = () => {
+    const area = surroundingDiv.current.getBoundingClientRect();
+    const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
+    if (dropZones?.length === props.schema.blocks.length + 1)
+      return;
+    quadtree().push({
+        x: area.left + ClampBlockSVG.STEM_WIDTH * BlocksModel.BLOCK_SIZE,
+        y: area.top + (0.8) * BlocksModel.BLOCK_SIZE,
+        width: 3 * BlocksModel.BLOCK_SIZE,
+        height: 0.5 * BlocksModel.BLOCK_SIZE,
+        id: props.schema.id,
+        index: 0,
+        // addBlock: add,
+    }, true);
+    props.schema.blocks.forEach((block, index) => quadtree().push({
+      x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
+      y: area.top + (index + 1 + 1.8) * BlocksModel.BLOCK_SIZE,
+      width: 3 * BlocksModel.BLOCK_SIZE,
+      height: 0.5 * BlocksModel.BLOCK_SIZE,
+      id: props.schema.id,
+      index: index + 1,
+      // addBlock: add,
+    }, true));
+  };
+
+  // remove all the drop zones from quadtree when drag starts
+  const dragStartCallback = () => {
+    const dropZones = quadtree().where({
+      id: props.schema.id
+    });
+    dropZones.forEach((zone) => quadtree().remove(zone));
+  };
+
   const blockLines = (1) + 2 + FlowBlockSVG.NOTCH_HEIGHT / 10;
 
   useEffect(() => {
+    pushToQuadtree();
     setupDragging(drag, surroundingDiv, {
-      // dragStart: dragStartCallback,
-      // dragEnd: pushToQuadtree,
+      dragStart: dragStartCallback,
+      dragEnd: pushToQuadtree,
     });
   }, []);
 
@@ -50,9 +89,9 @@ const FlowClampBlockNoArgs = React.memo((props) => {
         >
           <path
             ref={drag}
-            stroke="purple"
+            stroke={"black"}
             strokeWidth={".1"}
-            fill={"purple"}
+            fill={props.schema.color}
             d={`M0 0 
             h${FlowBlockSVG.NOTCH_DISTANCE} 
                   v${FlowBlockSVG.NOTCH_HEIGHT}
@@ -81,11 +120,12 @@ const FlowClampBlockNoArgs = React.memo((props) => {
           />
         </svg>
 
+        {/* rendering DOM element for drop zones */}
         <div
           style={{
             position: "absolute",
-            top: (1.8) * BlocksModel.BLOCK_SIZE,
-            left: 0.5 * BlocksModel.BLOCK_SIZE,
+            top: (0.8) * BlocksModel.BLOCK_SIZE,
+            left: ClampBlockSVG.STEM_WIDTH * BlocksModel.BLOCK_SIZE,
             width: 3 * BlocksModel.BLOCK_SIZE,
             height: 0.5 * BlocksModel.BLOCK_SIZE,
             // backgroundColor: "yellow",

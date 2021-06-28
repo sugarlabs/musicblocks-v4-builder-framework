@@ -24,6 +24,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
       });
       if (colliding.length > 0) {
         console.log("colliding");
+        console.log(colliding[0]);
       }
     }
   };
