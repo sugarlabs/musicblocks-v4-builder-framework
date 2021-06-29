@@ -33,7 +33,7 @@ some observations / assumptions
 @param dragCallback - function to call when being dragged
 */
 
-export const setUpDragging = (
+export const setupDragging = (
   draggablePathRef,
   surroundingDivRef,
   dragFunctions
@@ -53,6 +53,7 @@ export const setUpDragging = (
         .drag()
         .on("start", (event) => {
           dragFunctions?.dragStart && dragFunctions.dragStart();
+          surroundingDivRef.current.style.zIndex = '1000';
         })
         .on("drag", (event) => {
           const divX = event.sourceEvent.pageX - layerX;
@@ -65,6 +66,8 @@ export const setUpDragging = (
         .on("end", (event) => {
             const divX = event.sourceEvent.clientX - layerX;
             const divY = event.sourceEvent.clientY - layerY;
+            surroundingDivRef.current.style.position = 'absolute';
+            surroundingDivRef.current.style.zIndex = 'auto';
             dragFunctions?.dragEnd && dragFunctions.dragEnd(divX, divY);
         })
     );
