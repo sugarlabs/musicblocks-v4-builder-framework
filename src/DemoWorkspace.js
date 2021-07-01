@@ -101,7 +101,7 @@ const workspace = [
 				id: "1-8",
 				position: {
 					x: 800,
-					y: 800
+					y: 700
 				},
                 color: "teal",
 				category: "flowClamp",
@@ -115,7 +115,7 @@ const workspace = [
 				id: "1-9",
 				position: {
 					x: 200,
-					y: 800
+					y: 700
 				},
                 color: "teal",
 				category: "flowClamp",
@@ -142,7 +142,7 @@ const workspace = [
 				id: "1-11",
 				position: {
 					x: 600,
-					y: 900
+					y: 600
 				},
                 color: "orange",
 				category: "flow",

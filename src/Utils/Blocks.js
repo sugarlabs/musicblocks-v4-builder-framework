@@ -87,7 +87,6 @@ export const getBlockLines = (container, schema, updatedId, updatedLines) => {
   }
   if (!updatedId || schema.id !== updatedId) {
       lines += schema.defaultBlockHeightLines;
-      console.log(`${schema.id} - ${lines}`);
     if (schema.category !== "flow" && lines <= schema.defaultBlockHeightLines) {
       // in Stack Clmap and Clamp blocks, even if the line is it is empty we have a blank block line
       lines++;
@@ -95,6 +94,12 @@ export const getBlockLines = (container, schema, updatedId, updatedLines) => {
   }
   container[schema.id] = lines;
   return lines;
+}
+
+export const getBlockLinesWrapper = (schema, updatedId, updatedLines) => {
+  let temp = {};
+  getBlockLines(temp, schema, updatedId, updatedLines);
+  return temp;
 }
 
 export const calculateBlockLinesTill = (blocks, blockLinesMap) => {
