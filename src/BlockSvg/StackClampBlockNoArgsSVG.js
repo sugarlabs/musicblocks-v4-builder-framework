@@ -6,13 +6,13 @@ import { CollisionContext } from "../Contexts/CollisionContext";
 import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import {dropAreas as quadtree} from '../DropAreas';
-import { setupDragging, getBlockLines, calculateBlockLinesTill } from "../Utils/Blocks";
+import { setupDragging, getBlockLines, calculateBlockLinesTill, getBlockLinesWrapper } from "../Utils/Blocks";
 
 const StackClampBlockNoArgsSVG = (props) => {
   console.log("StackClampBlockNoArgsSVG Rendered");
   const { addBlock, removeBlock } = useContext(CollisionContext);
   const [reRenderChildren, setReRenderChildren] = useState(false);
-  const [blockLinesMap, setBlockLinesMap] = useState({});
+  let [blockLinesMap, setBlockLinesMap] = useState({});
 
   const updateBlockLinesMap = (updateId, updatedLines) => {
     const temp = {...blockLinesMap};
@@ -26,7 +26,9 @@ const StackClampBlockNoArgsSVG = (props) => {
   const surroundingDiv = useRef(null);
 
   const add = (workspace, block, index) => {
-    return addBlock(workspace, props.schema.id, index, block);
+    const updatedWorkspace = addBlock(workspace, props.schema.id, index, block);
+    setBlockLinesMap({...getBlockLinesWrapper(updatedWorkspace)})
+    return updatedWorkspace;
   };
 
   const remove = (workspace, blockId) => {
@@ -35,7 +37,6 @@ const StackClampBlockNoArgsSVG = (props) => {
 
   const pushToQuadtree = () => {
     const area = surroundingDiv.current.getBoundingClientRect();
-    console.log(`pushing to quadtree() x=${area.left} y=${area.top} width=${area.width} height=${area.height}`)
     const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
@@ -70,15 +71,15 @@ const StackClampBlockNoArgsSVG = (props) => {
 
   useEffect(()=>{
     let temp = {};
-    console.log("First Time execution thing happened again!");
     getBlockLines(temp, props.schema);
-    console.log(temp);
     setBlockLinesMap(temp);
   }, [JSON.stringify(props.schema.blocks)])
 
+  if (!blockLinesMap[props.schema.id]) {
+    blockLinesMap = getBlockLinesWrapper(props.schema);
+  }
+
   blockLinesTill = calculateBlockLinesTill(props.schema.blocks, blockLinesMap);
-  
-  console.log(blockLinesTill);
 
   const blockLines = blockLinesMap[props.schema.id];
 
@@ -172,7 +173,6 @@ const StackClampBlockNoArgsSVG = (props) => {
                     },
                   }}
                   nested
-                  reRenderChildren={reRenderChildren}
                   removeBlock={remove}
                   updateBlockLinesMap={updateBlockLinesMap}
                 />
@@ -190,8 +190,8 @@ const StackClampBlockNoArgsSVG = (props) => {
                   }}
                   nested
                   blockLinesMap={blockLinesMap}
+                  setBlockLinesMap={setBlockLinesMap}
                   updateBlockLinesMap={updateBlockLinesMap}
-                  reRenderChildren={reRenderChildren}
                   removeBlock={remove}
                 />
               );

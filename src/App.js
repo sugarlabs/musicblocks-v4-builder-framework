@@ -12,17 +12,11 @@ function App() {
   const [workspace, setWorkspace] = useState(workspaceFromMonitor);
 
   const searchBlock = (id, func, block) => {
-    // console.log(`searching for id = ${id}`);
-    // console.log(block);
-    // console.log(block.id);
     if (block?.id === id){
-      console.log(`Block with id ${id} found`);
       func(block);
     }
     else {
       if (Array.isArray(block)) {
-        // console.log("is Array");
-        // console.log(block.length);
         for (let i = 0; i < block.length; i++) {
           searchBlock(id, func, block[i]);
         }
@@ -70,7 +64,6 @@ function App() {
           {workspace.map((stack) => {
             switch (stack.type) {
               case "crumbs":
-                console.log("CRUMBS");
                 return <Crumbs key={stack.id} schema={stack} />;
               case "start":
                 return <StackClampBlockNoArgsSVG key={stack.id} schema={stack} />;

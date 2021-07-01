@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useContext } from "react";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
-import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setupDragging } from "../Utils/Blocks";
@@ -27,7 +26,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
         height: 5,
       });
       if (colliding.length > 0) {
-        console.log(colliding[0].id);
+        // console.log(colliding[0].id);
       }
     }
   };
