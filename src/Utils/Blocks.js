@@ -73,3 +73,38 @@ export const setupDragging = (
     );
   }
 };
+
+export const getBlockLines = (container, schema, updatedId, updatedLines) => {
+  // recursivly iterates the all the blocks in the stack and gives how many blockLines
+  // they take up currently
+  let lines = 0;
+  for (let i = 0; i < (schema?.blocks?.length || 0); i++) {
+    if (schema.id === updatedId) {
+      lines += updatedLines;
+    } else {
+      lines += getBlockLines(container, schema.blocks[i], updatedId, updatedLines);
+    }
+  }
+  if (!updatedId || schema.id !== updatedId) {
+      lines += schema.defaultBlockHeightLines;
+      console.log(`${schema.id} - ${lines}`);
+    if (schema.category !== "flow" && lines <= schema.defaultBlockHeightLines) {
+      // in Stack Clmap and Clamp blocks, even if the line is it is empty we have a blank block line
+      lines++;
+    }
+  }
+  container[schema.id] = lines;
+  return lines;
+}
+
+export const calculateBlockLinesTill = (blocks, blockLinesMap) => {
+  const container = [];
+  let sum = 0;
+  container.push(sum);
+  blocks.forEach((block) => {
+    if (blockLinesMap[block.id])
+      sum += blockLinesMap[block.id];
+    container.push(sum);
+  });
+  return container;
+}

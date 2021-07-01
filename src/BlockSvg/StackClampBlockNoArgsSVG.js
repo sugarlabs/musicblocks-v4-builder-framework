@@ -3,21 +3,27 @@ import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
-import { pollingTest, setupDragging } from "../Utils/Blocks";
+import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import {dropAreas as quadtree} from '../DropAreas';
-import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
+import { setupDragging, getBlockLines, calculateBlockLinesTill } from "../Utils/Blocks";
 
-const StackClampBlockNoArgsSVG = React.memo((props) => {
+const StackClampBlockNoArgsSVG = (props) => {
   console.log("StackClampBlockNoArgsSVG Rendered");
   const { addBlock, removeBlock } = useContext(CollisionContext);
+  const [reRenderChildren, setReRenderChildren] = useState(false);
+  const [blockLinesMap, setBlockLinesMap] = useState({});
 
-  const blockLinesTill = [];
+  const updateBlockLinesMap = (updateId, updatedLines) => {
+    const temp = {...blockLinesMap};
+    getBlockLines(temp, props.schema, updateId, updatedLines);
+    setBlockLinesMap({...temp});
+  }
 
-  const dropArea = useRef();
+  let blockLinesTill = [];
+
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
-  const lastPollingPosition = useRef({}); // used to store last drag location across renders
 
   const add = (workspace, block, index) => {
     return addBlock(workspace, props.schema.id, index, block);
@@ -56,28 +62,25 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
     pushToQuadtree();
     setupDragging(drag, surroundingDiv, {
       dragStart: dragStartCallback,
-      dragEnd: pushToQuadtree,
+      dragEnd: () => {
+        setReRenderChildren(!reRenderChildren);
+      },
     });
   });
 
-  const getBlockLines = (schema) => {
-    let lines = 0;
-    if (schema.id === props.schema.id)
-      blockLinesTill.push(lines);
-    for (let i = 0; i < (schema?.blocks?.length || 0); i++) {
-      const temp = getBlockLines(schema.blocks[i]);
-      lines += temp;
-      if (schema.id === props.schema.id)
-        blockLinesTill.push(lines);
-    }
-    lines += schema.defaultBlockHeightLines;
-    if (schema.category != "flow" && schema.blocks.length === 0)
-      lines++;
-    return lines;
-  }
+  useEffect(()=>{
+    let temp = {};
+    console.log("First Time execution thing happened again!");
+    getBlockLines(temp, props.schema);
+    console.log(temp);
+    setBlockLinesMap(temp);
+  }, [JSON.stringify(props.schema.blocks)])
 
-  const blockLines = getBlockLines(props.schema);
+  blockLinesTill = calculateBlockLinesTill(props.schema.blocks, blockLinesMap);
+  
   console.log(blockLinesTill);
+
+  const blockLines = blockLinesMap[props.schema.id];
 
   return (
     <div
@@ -169,7 +172,9 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
                     },
                   }}
                   nested
+                  reRenderChildren={reRenderChildren}
                   removeBlock={remove}
+                  updateBlockLinesMap={updateBlockLinesMap}
                 />
               );
             } else if (block.category === "flowClamp" && block.args.length === 0) {
@@ -184,6 +189,9 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
                     },
                   }}
                   nested
+                  blockLinesMap={blockLinesMap}
+                  updateBlockLinesMap={updateBlockLinesMap}
+                  reRenderChildren={reRenderChildren}
                   removeBlock={remove}
                 />
               );
@@ -193,10 +201,10 @@ const StackClampBlockNoArgsSVG = React.memo((props) => {
       </div>
     </div>
   );
-});
+};
 
 StackClampBlockNoArgsSVG.defaultProps = {
   blockWidthLines: 5,
 };
 
-export default StackClampBlockNoArgsSVG;
+export default React.memo(StackClampBlockNoArgsSVG);

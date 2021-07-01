@@ -1,11 +1,11 @@
-import React, {useEffect, useRef, useContext} from 'react';
+import React, {useEffect, useState, useRef, useContext} from 'react';
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
-import { pollingTest, setupDragging } from "../Utils/Blocks";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import {dropAreas as quadtree} from '../DropAreas';
+import { pollingTest, setupDragging, calculateBlockLinesTill, getBlockLines } from "../Utils/Blocks";
 
 /*
   props needed
@@ -15,8 +15,21 @@ import {dropAreas as quadtree} from '../DropAreas';
 
 const FlowClampBlockNoArgs = React.memo((props) => {
 
+  const [reRenderChildren, setReRenderChildren] = useState(false);
+  const [blockLinesMap, setBlockLinesMap] = useState({});
+
+  const updateBlockLinesMap = (updateId, updatedLines) => {
+    const temp = {...blockLinesMap};
+    getBlockLines(temp, props.schema, updateId, updatedLines);
+    setBlockLinesMap({...temp});
+  }
+  let blockLinesTill = [];
+
+  console.log(`${props.schema.id} re-rendered`);
+
+  const dragging = useRef({status: !!props.dragging, lines: props.nested? props.blockLinesMap[props.schema.id]: 0});
+
   const { addBlock, workspace, setWorkspace, addBlockToCrumbs, removeBlock } = useContext(CollisionContext);
-  const blockLinesTill = [];
 
   // refs
   const drag = useRef(null);
@@ -35,6 +48,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   // adds the drop areas of the clamp to quadtree
   const pushToQuadtree = () => {
     const area = surroundingDiv.current.getBoundingClientRect();
+    console.log(`pushing to quadtree() x=${area.left} y=${area.top} width=${area.width} height=${area.height}`);
     const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
@@ -50,11 +64,19 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   };
 
   // remove all the drop zones from quadtree when drag starts
-  const dragStartCallback = () => {
+  const removeDropZones = () => {
     const dropZones = quadtree().where({
       id: props.schema.id
     });
     dropZones.forEach((zone) => quadtree().remove(zone));
+  }
+
+  const dragStartCallback = () => {
+    removeDropZones();
+    dragging.current = {status: true, lines: props.nested? props.blockLinesMap[props.schema.id]: props.defaultBlockHeightLines};
+    if (!!props.nested) {
+      props.updateBlockLinesMap(props.schema.id, 0);
+    }
   };
 
   const draggingCallback = (x, y) => {
@@ -72,6 +94,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   };
 
   const dragEndCallback = (x, y) => {
+    dragging.current.status = false;
     const collidingDropAreas = quadtree().colliding({
       x,
       y,
@@ -84,20 +107,12 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     }
     let newState = workspace;
     if (colliding || !!props.nested) {
-      // if the block(s) were nested and they were dragged then they
-      // are to be removed from the previous block and added to CRUMBS
-      // if the block was previously in CRUMBS or inside another block
-      // and it is colliding at the end of drag then also it is to be
-      // removed from its previous position and added
       newState = props.removeBlock(newState, props.schema.id);
     }
     if (colliding) {
       newState = collidingDropAreas[0].addBlock(newState, props.schema, collidingDropAreas[0].index);
     }
     if (!colliding && !!props.nested) {
-      // if the block is not colliding at the end of the drag and is
-      // nested then the block is to be added to crumbs
-      console.log("Block is going to be added to CRUMBS");
       newState = addBlockToCrumbs(newState, { ...props.schema, position: { x, y } });
     }
     setWorkspace(newState);
@@ -106,7 +121,8 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   }
 
   useEffect(() => {
-    dragStartCallback();
+    dragging.current.status = !!props.dragging;
+    removeDropZones();
     pushToQuadtree();
     setupDragging(drag, surroundingDiv, {
       dragStart: dragStartCallback,
@@ -115,24 +131,19 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     });
   });
 
-  const getBlockLines = (schema) => {
-    let lines = 0;
-    if (schema.id === props.schema.id)
-      blockLinesTill.push(lines);
-    for (let i = 0; i < (schema?.blocks?.length || 0); i++) {
-      const temp = getBlockLines(schema.blocks[i]);
-      lines += temp;
-      if (schema.id === props.schema.id)
-        blockLinesTill.push(lines);
+  useEffect(()=>{
+    if (!props.nested) {
+      let temp = {};
+      console.log("First Time execution thing happened again!");
+      getBlockLines(temp, props.schema);
+      console.log(temp);
+      setBlockLinesMap(temp);
     }
-    lines += schema.defaultBlockHeightLines;
-    if (schema.category != "flow" && schema.blocks.length === 0)
-      lines++;
-    return lines;
-  }
+  }, [JSON.stringify(props.schema.blocks)])
 
-  const blockLines = getBlockLines(props.schema);
-  console.warn(blockLines);
+  blockLinesTill = calculateBlockLinesTill(props.schema.blocks, props.nested? props.blockLinesMap: blockLinesMap);
+  const blockLines = dragging.current.status? dragging.current.lines: props.nested? props.blockLinesMap[props.schema.id]: blockLinesMap[props.schema.id];
+
   return (
     <div
       ref={surroundingDiv}
@@ -224,6 +235,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                     },
                   }}
                   nested
+                  updateBlockLinesMap={props.nested? props.updateBlockLinesMap: updateBlockLinesMap}
                   removeBlock={remove}
                 />
               );
@@ -239,7 +251,10 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                     },
                   }}
                   nested
+                  blockLinesMap={props.nested? props.blockLinesMap: blockLinesMap}
+                  updateBlockLinesMap={props.nested? props.updateBlockLinesMap: updateBlockLinesMap}
                   removeBlock={remove}
+                  dragging={dragging.current.status}
                 />
               );
             }

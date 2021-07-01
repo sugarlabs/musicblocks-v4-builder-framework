@@ -12,7 +12,11 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
   const surroundingDiv = useRef(null);
   const lastPollingPosition = useRef({});
 
-  const dragStartCallback = () => { }
+  const dragStartCallback = () => {
+    if (!!props.nested) {
+      props.updateBlockLinesMap(props.schema.id, 0);
+    }
+  }
 
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {

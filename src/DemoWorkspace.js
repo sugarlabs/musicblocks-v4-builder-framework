@@ -177,6 +177,34 @@ const workspace = [
 				defaultBlockHeightLines: 2,
                 args: [],
 				blocks: []
+			},
+			{
+				id: "1-14",
+				position: {
+					x: 250,
+					y: 150
+				},
+                color: "teal",
+				category: "flowClamp",
+				type: "start",
+                blockWidthLines: 4,
+				defaultBlockHeightLines: 2,
+                args: [],
+				blocks: []
+			},
+			{
+				id: "1-15",
+				position: {
+					x: 350,
+					y: 150
+				},
+                color: "teal",
+				category: "flowClamp",
+				type: "start",
+                blockWidthLines: 4,
+				defaultBlockHeightLines: 2,
+                args: [],
+				blocks: []
 			}
 		]
 	},
