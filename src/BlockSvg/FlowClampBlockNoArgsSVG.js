@@ -180,6 +180,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
       style={{
         display: "inline-block",
         position: "absolute",
+        pointerEvents: "none",
         top: props.schema.position.y,
         left: props.schema.position.x,
         width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
@@ -202,6 +203,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
             stroke={"black"}
             strokeWidth={".1"}
             fill={props.schema.color}
+            style={{pointerEvents: "fill"}}
             d={`M0 0 
             h${FlowBlockSVG.NOTCH_DISTANCE} 
                   v${FlowBlockSVG.NOTCH_HEIGHT}
