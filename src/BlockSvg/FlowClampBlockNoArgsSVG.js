@@ -16,6 +16,8 @@ import { pollingTest, setupDragging, calculateBlockLinesTill, getBlockLines, get
 const FlowClampBlockNoArgs = React.memo((props) => {
 
   const [reRenderChildren, setReRenderChildren] = useState(false);
+  const [currentlyHovered, setCurrentlyHovered] = useState(null);
+
   let [blockLinesMap, setBlockLinesMap] = useState(!props.nested? {...getBlockLinesWrapper(props.schema)}: {});
 
   const updateBlockLinesMap = (updateId, updatedLines) => {
@@ -63,6 +65,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
       id: props.schema.id,
       index: index,
       addBlock: add,
+      setCurrentlyHovered: setCurrentlyHovered
     }, true));
   };
 
@@ -82,6 +85,8 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     }
   };
 
+  let collidingWith = null;
+  let currentHoverSetter = null;
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
       const colliding = quadtree().colliding({
@@ -90,13 +95,31 @@ const FlowClampBlockNoArgs = React.memo((props) => {
         width: 5,
         height: 5,
       });
-      if (colliding.length > 0) {
-        // console.log(colliding[0].id);
+      if (colliding.length > 0 && !props.nested) {
+        let tempColl = `${colliding[0].id}_${colliding[0].index}`;
+        console.log(tempColl);
+        if (colliding[0].setCurrentlyHovered && collidingWith !== tempColl) {
+          collidingWith = tempColl;
+          currentHoverSetter = colliding[0].setCurrentlyHovered;
+          console.log(`Now Collding with ${collidingWith}`);
+          currentHoverSetter(colliding[0].index-1);
+        }
+      } else {
+        if (collidingWith !== null) {
+          console.log(`Moved out of ${collidingWith}`);
+          collidingWith = null;
+          currentHoverSetter(null);
+          currentHoverSetter = null;
+        }
       }
     }
   };
 
   const dragEndCallback = (x, y) => {
+    if (currentHoverSetter !== null) {
+      currentHoverSetter(null);
+      currentHoverSetter = null;
+    }
     dragging.current.status = false;
     const collidingDropAreas = quadtree().colliding({
       x,
@@ -149,7 +172,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   }
 
   blockLinesTill = calculateBlockLinesTill(props.schema.blocks, props.nested? props.blockLinesMap: blockLinesMap);
-  const blockLines = !!props.nested? (dragging.current.status? dragging.current.lines: props.blockLinesMap[props.schema.id]) : blockLinesMap[props.schema.id];
+  const blockLines = !!props.nested? dragging.current.status? dragging.current.lines: props.blockLinesMap[props.schema.id] : blockLinesMap[props.schema.id];
 
   return (
     <div
@@ -205,6 +228,29 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                   h-${FlowBlockSVG.NOTCH_DISTANCE}
                   v-${((blockLines + FlowBlockSVG.NOTCH_HEIGHT / 10)) * 10}`}
           />
+          {currentlyHovered === -1 && <path
+            stroke="yellow"
+            fill="none"
+            strokeWidth="1"
+            d={`M${ClampBlockSVG.STEM_WIDTH * 10} 10 
+            h${FlowBlockSVG.NOTCH_DISTANCE}
+              v${FlowBlockSVG.NOTCH_HEIGHT}
+              h${FlowBlockSVG.NOTCH_WIDTH}
+              v-${FlowBlockSVG.NOTCH_HEIGHT}
+              h${(props.blockWidthLines - ClampBlockSVG.STEM_WIDTH) * 10 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}`}
+          />}
+
+          {props.nested && props.glow && <path 
+            stroke="yellow"
+            fill="none"
+            strokeWidth="1"
+            d={`M0 ${blockLines * 10}
+              h${FlowBlockSVG.NOTCH_DISTANCE}
+              v${FlowBlockSVG.NOTCH_HEIGHT}
+              h${FlowBlockSVG.NOTCH_WIDTH}
+              v-${FlowBlockSVG.NOTCH_HEIGHT}
+              h${(ClampBlockSVG.LOWER_BRANCH * props.blockWidthLines * 10) + (ClampBlockSVG.STEM_WIDTH * 10) - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}`}
+          />}
         </svg>
 
         {blockLinesTill.map((lines, index) => <div
@@ -242,6 +288,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                     },
                   }}
                   nested
+                  glow={index === currentlyHovered}
                   updateBlockLinesMap={props.nested? props.updateBlockLinesMap: updateBlockLinesMap}
                   removeBlock={remove}
                 />
@@ -258,6 +305,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
                     },
                   }}
                   nested
+                  glow={index === currentlyHovered}
                   blockLinesMap={props.nested? props.blockLinesMap: blockLinesMap}
                   setBlockLinesMap={props.nested? props.setBlockLinesMap: setBlockLinesMap}
                   updateBlockLinesMap={props.nested? props.updateBlockLinesMap: updateBlockLinesMap}
