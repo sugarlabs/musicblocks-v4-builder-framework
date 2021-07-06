@@ -149,7 +149,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   }
 
   blockLinesTill = calculateBlockLinesTill(props.schema.blocks, props.nested? props.blockLinesMap: blockLinesMap);
-  const blockLines = !!props.nested? dragging.current.status? dragging.current.lines: props.blockLinesMap[props.schema.id] : blockLinesMap[props.schema.id];
+  const blockLines = !!props.nested? (dragging.current.status? dragging.current.lines: props.blockLinesMap[props.schema.id]) : blockLinesMap[props.schema.id];
 
   return (
     <div

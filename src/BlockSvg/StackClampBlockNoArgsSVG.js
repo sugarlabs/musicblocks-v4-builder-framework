@@ -5,19 +5,20 @@ import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
-import {dropAreas as quadtree} from '../DropAreas';
+import { dropAreas as quadtree } from '../DropAreas';
 import { setupDragging, getBlockLines, calculateBlockLinesTill, getBlockLinesWrapper } from "../Utils/Blocks";
 
 const StackClampBlockNoArgsSVG = (props) => {
   console.log("StackClampBlockNoArgsSVG Rendered");
   const { addBlock, removeBlock } = useContext(CollisionContext);
   const [reRenderChildren, setReRenderChildren] = useState(false);
+  const [currentlyHovered, setCurrentlyHovered] = useState(null);
   let [blockLinesMap, setBlockLinesMap] = useState({});
 
   const updateBlockLinesMap = (updateId, updatedLines) => {
-    const temp = {...blockLinesMap};
+    const temp = { ...blockLinesMap };
     getBlockLines(temp, props.schema, updateId, updatedLines);
-    setBlockLinesMap({...temp});
+    setBlockLinesMap({ ...temp });
   }
 
   let blockLinesTill = [];
@@ -27,7 +28,7 @@ const StackClampBlockNoArgsSVG = (props) => {
 
   const add = (workspace, block, index) => {
     const updatedWorkspace = addBlock(workspace, props.schema.id, index, block);
-    setBlockLinesMap({...getBlockLinesWrapper(updatedWorkspace)})
+    setBlockLinesMap({ ...getBlockLinesWrapper(updatedWorkspace) })
     return updatedWorkspace;
   };
 
@@ -48,6 +49,7 @@ const StackClampBlockNoArgsSVG = (props) => {
       id: props.schema.id,
       index: index,
       addBlock: add,
+      setCurrentlyHovered: setCurrentlyHovered
     }, true));
   };
 
@@ -69,7 +71,7 @@ const StackClampBlockNoArgsSVG = (props) => {
     });
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     let temp = {};
     getBlockLines(temp, props.schema);
     setBlockLinesMap(temp);
@@ -117,9 +119,8 @@ const StackClampBlockNoArgsSVG = (props) => {
                  h${2 * (5 - ClampBlockSVG.CAP_SIZE)} 
                  h30 
                  v10 
-                 h-${
-                   45 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
-                 } 
+                 h-${45 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
+              } 
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h-${FlowBlockSVG.NOTCH_WIDTH}
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
@@ -129,12 +130,24 @@ const StackClampBlockNoArgsSVG = (props) => {
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h${FlowBlockSVG.NOTCH_WIDTH} 
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
-                 h${
-                   25 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
-                 }
+                 h${25 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
+              }
                  v10 h-35 
                  v-${blockLines * 10}`}
           />
+
+          {currentlyHovered === -1 && <path
+            id="hover-glow"
+            stroke="yellow"
+            fill="none"
+            strokeWidth="1"
+            d={`M${ClampBlockSVG.STEM_WIDTH * 10} 20 
+            h${FlowBlockSVG.NOTCH_DISTANCE}
+              v${FlowBlockSVG.NOTCH_HEIGHT}
+              h${FlowBlockSVG.NOTCH_WIDTH}
+              v-${FlowBlockSVG.NOTCH_HEIGHT}
+              h${(props.blockWidthLines - ClampBlockSVG.STEM_WIDTH) * 10 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}`}
+          />}
         </svg>
 
         {blockLinesTill.map((lines, index) => <div
@@ -173,6 +186,7 @@ const StackClampBlockNoArgsSVG = (props) => {
                     },
                   }}
                   nested
+                  glow={index === currentlyHovered}
                   removeBlock={remove}
                   updateBlockLinesMap={updateBlockLinesMap}
                 />
