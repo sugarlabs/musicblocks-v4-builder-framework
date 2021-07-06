@@ -137,7 +137,6 @@ const StackClampBlockNoArgsSVG = (props) => {
           />
 
           {currentlyHovered === -1 && <path
-            id="hover-glow"
             stroke="yellow"
             fill="none"
             strokeWidth="1"
@@ -203,6 +202,7 @@ const StackClampBlockNoArgsSVG = (props) => {
                     },
                   }}
                   nested
+                  glow={index === currentlyHovered}
                   blockLinesMap={blockLinesMap}
                   setBlockLinesMap={setBlockLinesMap}
                   updateBlockLinesMap={updateBlockLinesMap}

@@ -134,7 +134,6 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
           />
 
           {props.glow && <path
-            id="hover-glow"
             stroke="yellow"
             fill="none"
             strokeWidth="1"
