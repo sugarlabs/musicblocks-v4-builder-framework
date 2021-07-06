@@ -91,6 +91,7 @@ const StackClampBlockNoArgsSVG = (props) => {
       style={{
         display: "inline-block",
         position: "absolute",
+        pointerEvents: "none",
         top: props.schema.position.y,
         left: props.schema.position.x,
         width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
@@ -113,6 +114,7 @@ const StackClampBlockNoArgsSVG = (props) => {
             stroke="purple"
             strokeWidth={".1"}
             fill={"purple"}
+            style={{pointerEvents: "fill"}}
             d={`M0 10 h10
                  l${ClampBlockSVG.CAP_SIZE} -${ClampBlockSVG.CAP_SIZE}
                  l${ClampBlockSVG.CAP_SIZE} ${ClampBlockSVG.CAP_SIZE}

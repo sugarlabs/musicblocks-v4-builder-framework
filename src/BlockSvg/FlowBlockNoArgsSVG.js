@@ -96,6 +96,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
         position: "absolute",
         top: props.schema.position.y,
         left: props.schema.position.x,
+        pointerEvents: "none"
       }}
     >
       <div
@@ -114,6 +115,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
             stroke={props.schema.color}
             strokeWidth={".1"}
             fill={props.schema.color}
+            style={{pointerEvents: "fill"}}
             d={`M0 0
                  h${FlowBlockSVG.NOTCH_DISTANCE}
                  v${FlowBlockSVG.NOTCH_HEIGHT}
