@@ -17,6 +17,8 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
     }
   }
 
+  let collidingWith = null;
+  let currentHoverSetter = null;
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
       const colliding = quadtree().colliding({
@@ -26,12 +28,30 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
         height: 5,
       });
       if (colliding.length > 0) {
-        // console.log(colliding[0].id);
+        let tempColl = `${colliding[0].id}_${colliding[0].index}`;
+        console.log(tempColl);
+        if (colliding[0].setCurrentlyHovered && collidingWith !== tempColl) {
+          collidingWith = tempColl;
+          currentHoverSetter = colliding[0].setCurrentlyHovered;
+          console.log(`Now Collding with ${collidingWith}`);
+          currentHoverSetter(colliding[0].index-1);
+        }
+      } else {
+        if (collidingWith !== null) {
+          console.log(`Moved out of ${collidingWith}`);
+          collidingWith = null;
+          currentHoverSetter(null);
+          currentHoverSetter = null;
+        }
       }
     }
   };
 
   const dragEndCallback = (x, y) => {
+    if (currentHoverSetter !== null) {
+      currentHoverSetter(null);
+      currentHoverSetter = null;
+    }
     const collidingDropAreas = quadtree().colliding({
       x,
       y,
@@ -112,6 +132,19 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
                  h-${FlowBlockSVG.NOTCH_DISTANCE}
                  v-${1 * 10}`}
           />
+
+          {props.glow && <path
+            id="hover-glow"
+            stroke="yellow"
+            fill="none"
+            strokeWidth="1"
+            d={`M0 10 
+            h${FlowBlockSVG.NOTCH_DISTANCE}
+              v${FlowBlockSVG.NOTCH_HEIGHT}
+              h${FlowBlockSVG.NOTCH_WIDTH}
+              v-${FlowBlockSVG.NOTCH_HEIGHT}
+              h${(props.blockWidthLines) * 10 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}`}
+          />}
         </svg>
       </div>
     </div>
