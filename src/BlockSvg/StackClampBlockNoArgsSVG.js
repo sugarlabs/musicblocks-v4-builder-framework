@@ -5,7 +5,7 @@ import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
-import { dropAreas as quadtree } from '../DropAreas';
+import { nestedBlocksDropAreas as quadtreeBlocks, argsDropAreas as quadtreeArgs } from '../DropAreas';
 import { setupDragging, getBlockLines, calculateBlockLinesTill, getBlockLinesWrapper } from "../Utils/Blocks";
 
 const StackClampBlockNoArgsSVG = (props) => {
@@ -36,12 +36,12 @@ const StackClampBlockNoArgsSVG = (props) => {
     return removeBlock(workspace, props.schema.id, blockId);
   }
 
-  const pushToQuadtree = () => {
+  const pushToQuadtreeBlocks = () => {
     const area = surroundingDiv.current.getBoundingClientRect();
-    const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
+    const dropZones = quadtreeBlocks().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
-    blockLinesTill.forEach((line, index) => quadtree().push({
+    blockLinesTill.forEach((line, index) => quadtreeBlocks().push({
       x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
       y: area.top + (1.8 + line) * BlocksModel.BLOCK_SIZE,
       width: 3 * BlocksModel.BLOCK_SIZE,
@@ -53,16 +53,49 @@ const StackClampBlockNoArgsSVG = (props) => {
     }, true));
   };
 
+  const pushToQuadtreeArgs = () => {
+    const area = surroundingDiv.current.getBoundingClientRect();
+    const top = area.top + 2 * BlocksModel.BLOCK_SIZE - 0.5 * BlocksModel.BLOCK_SIZE;
+    let leftOffset = area.left + (props.blockWidthLines * BlocksModel.BLOCK_SIZE);
+    for (let i = 0; i < props.schema.argsLength; i++) {
+      if (props.schema.args[i]) {
+        console.log(`arg ${i} exists`);
+        leftOffset += (props.schema[i].blockWidthLines + ClampBlockSVG.ARG_PADDING) * BlocksModel.BLOCK_SIZE;
+        continue;
+      }
+      console.log(`Pushing to Quadtree args
+      x = ${leftOffset}
+      y = ${top}
+      width = ${ClampBlockSVG.ARG_PLACEHOLDER_WIDTH * BlocksModel.BLOCK_SIZE}
+      height = ${0.5 * BlocksModel.BLOCK_SIZE}`);
+      quadtreeArgs().push({
+        x: leftOffset,
+        y: top,
+        width: ClampBlockSVG.ARG_PLACEHOLDER_WIDTH * BlocksModel.BLOCK_SIZE,
+        height: 0.5 * BlocksModel.BLOCK_SIZE,
+        id: props.schema.id,
+        index: i,
+        setCurrentlyHovered: () => {}
+      });
+      leftOffset += (ClampBlockSVG.ARG_PLACEHOLDER_WIDTH + ClampBlockSVG.ARG_PADDING) * BlocksModel.BLOCK_SIZE;
+    }
+  }
+
   const dragStartCallback = () => {
-    const dropZones = quadtree().where({
+    const dropZonesBlocks = quadtreeBlocks().where({
       id: props.schema.id
     });
-    dropZones.forEach((zone) => quadtree().remove(zone));
+    const dropZonesArgs = quadtreeArgs().where({
+      id: props.schema.id
+    })
+    dropZonesBlocks.forEach((zone) => quadtreeBlocks().remove(zone));
+    dropZonesArgs.forEach((zone) => quadtreeBlocks().remove(zone));
   };
 
   useEffect(() => {
     dragStartCallback();
-    pushToQuadtree();
+    pushToQuadtreeBlocks();
+    pushToQuadtreeArgs();
     setupDragging(drag, surroundingDiv, {
       dragStart: dragStartCallback,
       dragEnd: () => {
