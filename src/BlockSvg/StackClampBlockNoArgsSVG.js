@@ -84,6 +84,7 @@ const StackClampBlockNoArgsSVG = (props) => {
   blockLinesTill = calculateBlockLinesTill(props.schema.blocks, blockLinesMap);
 
   const blockLines = blockLinesMap[props.schema.id];
+  const blockWidthLines = props.blockWidthLines + ((props.schema.argsLength || 0) * ClampBlockSVG.ARG_PADDING) + ((props.schema.argsLength || 0) * ClampBlockSVG.ARG_PLACEHOLDER_WIDTH);
 
   return (
     <div
@@ -94,19 +95,19 @@ const StackClampBlockNoArgsSVG = (props) => {
         pointerEvents: "none",
         top: props.schema.position.y,
         left: props.schema.position.x,
-        width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
+        width: BlocksModel.BLOCK_SIZE * blockWidthLines,
       }}
     >
       <div
         style={{
           display: "inline-block",
           position: "relative",
-          width: BlocksModel.BLOCK_SIZE * props.blockWidthLines,
+          width: BlocksModel.BLOCK_SIZE * blockWidthLines,
         }}
       >
         <svg
-          viewBox={`0 0 ${props.blockWidthLines * 10} ${blockLines * 10}`}
-          width={`${BlocksModel.BLOCK_SIZE * props.blockWidthLines}px`}
+          viewBox={`0 0 ${blockWidthLines * 10} ${blockLines * 10}`}
+          width={`${BlocksModel.BLOCK_SIZE * blockWidthLines}px`}
           height={`${BlocksModel.BLOCK_SIZE * blockLines}px`}
         >
           <path
@@ -120,9 +121,30 @@ const StackClampBlockNoArgsSVG = (props) => {
                  l${ClampBlockSVG.CAP_SIZE} ${ClampBlockSVG.CAP_SIZE}
                  h${2 * (5 - ClampBlockSVG.CAP_SIZE)} 
                  h30 
+                 ${props.schema.argsLength? (()=>{
+                   let argsHolderSvg = ''
+                   for (let i = 0; i < props.schema.argsLength; i++) {
+                    argsHolderSvg += `
+                      v${(10 - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT) / 2} 
+                      h-${ClampBlockSVG.ARG_NOTCH_BRIDGE_WIDTH} 
+                      v-${(ClampBlockSVG.ARG_NOTCH_HEIGHT - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT)/2}
+                      h-${ClampBlockSVG.ARG_NOTCH_WIDTH}
+                      v${ClampBlockSVG.ARG_NOTCH_HEIGHT}
+                      h${ClampBlockSVG.ARG_NOTCH_WIDTH}
+                      v-${(ClampBlockSVG.ARG_NOTCH_HEIGHT - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT)/2}
+                      h${ClampBlockSVG.ARG_NOTCH_BRIDGE_WIDTH}
+                      v${(10 - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT)/2 - 1}`;
+                    if (props.schema.args[i])
+                      argsHolderSvg += `h${ClampBlockSVG.ARG_PLACEHOLDER_WIDTH * 10} `;
+                    else
+                      argsHolderSvg += `h${ClampBlockSVG.ARG_PLACEHOLDER_WIDTH * 10} `;
+                    argsHolderSvg += 'v-9 ';
+                    argsHolderSvg += `h${ClampBlockSVG.ARG_PADDING * 10} `;
+                   }
+                   return argsHolderSvg;
+                 })(): ''}
                  v10 
-                 h-${45 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
-              } 
+                 h-${(blockWidthLines - ClampBlockSVG.STEM_WIDTH)*10 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)} 
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h-${FlowBlockSVG.NOTCH_WIDTH}
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
@@ -132,10 +154,11 @@ const StackClampBlockNoArgsSVG = (props) => {
                  v${FlowBlockSVG.NOTCH_HEIGHT}
                  h${FlowBlockSVG.NOTCH_WIDTH} 
                  v-${FlowBlockSVG.NOTCH_HEIGHT}
-                 h${25 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)
-              }
+                 h${25 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}
+              
                  v10 h-35 
-                 v-${blockLines * 10}`}
+                 v-${blockLines * 10}
+                `}
           />
 
           {currentlyHovered === -1 && <path
