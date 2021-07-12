@@ -225,7 +225,7 @@ const workspace = [
         category: "clamp",
 		type: "start",
 		avatar: "Some avatar here",
-        id: "2",
+        id: "3",
 		position: {
 			x: 200,
 			y: 600
@@ -239,7 +239,7 @@ const workspace = [
         category: "clamp",
 		type: "start",
 		avatar: "Some avatar here",
-        id: "2",
+        id: "4",
 		position: {
 			x: 800,
 			y: 200

@@ -3,7 +3,7 @@ import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import FlowBlockSVG from "../model/BlocksModel/BlockSvg/FlowBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import { pollingTest, setupDragging } from "../Utils/Blocks";
-import { dropAreas as quadtree } from '../DropAreas';
+import { nestedBlocksDropAreas as quadtreeBlocks } from '../DropAreas';
 
 const FlowBlockNoArgsSVG = React.memo((props) => {
   const { workspace, setWorkspace, addBlockToCrumbs } = useContext(CollisionContext);
@@ -21,7 +21,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
   let currentHoverSetter = null;
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
-      const colliding = quadtree().colliding({
+      const colliding = quadtreeBlocks().colliding({
         x,
         y,
         width: 5,
@@ -52,7 +52,7 @@ const FlowBlockNoArgsSVG = React.memo((props) => {
       currentHoverSetter(null);
       currentHoverSetter = null;
     }
-    const collidingDropAreas = quadtree().colliding({
+    const collidingDropAreas = quadtreeBlocks().colliding({
       x,
       y,
       width: 5,

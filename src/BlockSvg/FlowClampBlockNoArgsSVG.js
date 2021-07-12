@@ -4,7 +4,7 @@ import { BlocksModel } from "../model/BlocksModel/BlockSvg/BlocksModel";
 import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 import { CollisionContext } from "../Contexts/CollisionContext";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
-import {dropAreas as quadtree} from '../DropAreas';
+import {nestedBlocksDropAreas as quadtreeBlocks} from '../DropAreas';
 import { pollingTest, setupDragging, calculateBlockLinesTill, getBlockLines, getBlockLinesWrapper } from "../Utils/Blocks";
 
 /*
@@ -51,13 +51,13 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     return removeBlock(workspace, props.schema.id, blockId);
   }
 
-  // adds the drop areas of the clamp to quadtree
+  // adds the drop areas of the clamp to quadtreeBlocks
   const pushToQuadtree = () => {
     const area = surroundingDiv.current.getBoundingClientRect();
-    const dropZones = quadtree().filter((ele) => ele.id === props.schema.id);
+    const dropZones = quadtreeBlocks().filter((ele) => ele.id === props.schema.id);
     if (dropZones?.length === props.schema.blocks.length + 1)
       return;
-    blockLinesTill.forEach((line, index) => quadtree().push({
+    blockLinesTill.forEach((line, index) => quadtreeBlocks().push({
       x: area.left + 0.5 * BlocksModel.BLOCK_SIZE,
       y: area.top + (line + 0.8) * BlocksModel.BLOCK_SIZE,
       width: 3 * BlocksModel.BLOCK_SIZE,
@@ -69,12 +69,12 @@ const FlowClampBlockNoArgs = React.memo((props) => {
     }, true));
   };
 
-  // remove all the drop zones from quadtree when drag starts
+  // remove all the drop zones from quadtreeBlocks when drag starts
   const removeDropZones = () => {
-    const dropZones = quadtree().where({
+    const dropZones = quadtreeBlocks().where({
       id: props.schema.id
     });
-    dropZones.forEach((zone) => quadtree().remove(zone));
+    dropZones.forEach((zone) => quadtreeBlocks().remove(zone));
   }
 
   const dragStartCallback = () => {
@@ -89,7 +89,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
   let currentHoverSetter = null;
   const draggingCallback = (x, y) => {
     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
-      const colliding = quadtree().colliding({
+      const colliding = quadtreeBlocks().colliding({
         x,
         y,
         width: 5,
@@ -121,7 +121,7 @@ const FlowClampBlockNoArgs = React.memo((props) => {
       currentHoverSetter = null;
     }
     dragging.current.status = false;
-    const collidingDropAreas = quadtree().colliding({
+    const collidingDropAreas = quadtreeBlocks().colliding({
       x,
       y,
       width: 5,

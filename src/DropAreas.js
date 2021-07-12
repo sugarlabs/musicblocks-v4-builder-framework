@@ -10,9 +10,15 @@ const vh = Math.max(
     window.innerHeight || 0
 );
 
-const quadtree = new Quadtree({ width: vw, height: vh });
-const dropAreas = () => {
-  return quadtree;
+const quadtreeHorizontal = new Quadtree({ width: vw, height: vh });
+const quadtreeVertical = new Quadtree({ width: vw, height: vh });
+
+const nestedBlocksDropAreas = () => {
+  return quadtreeHorizontal;
 };
 
-export { dropAreas };
+const argsDropAreas = () => {
+  return quadtreeVertical;
+}
+
+export { nestedBlocksDropAreas, argsDropAreas };
