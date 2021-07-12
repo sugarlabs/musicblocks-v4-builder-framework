@@ -35,13 +35,13 @@ const ValueBlockSVG = React.memo((props) => {
           collidingWith = tempColl;
           currentHoverSetter = colliding[0].setCurrentlyHovered;
           console.log(`Now Collding with ${collidingWith}`);
-          // currentHoverSetter(colliding[0].index-1);
+          currentHoverSetter(colliding[0].index);
         }
       } else {
         if (collidingWith !== null) {
           console.log(`Moved out of ${collidingWith}`);
           collidingWith = null;
-        //   currentHoverSetter(null);
+          currentHoverSetter(null);
           currentHoverSetter = null;
         }
       }
