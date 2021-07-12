@@ -97,34 +97,34 @@ const workspace = [
                 args: [],
 				blocks: []
 			},
-			{
-				id: "1-8",
-				position: {
-					x: 800,
-					y: 700
-				},
-                color: "teal",
-				category: "flowClamp",
-				type: "start",
-                blockWidthLines: 4,
-				defaultBlockHeightLines: 2,
-                args: [],
-				blocks: []
-			},
-			{
-				id: "1-9",
-				position: {
-					x: 200,
-					y: 700
-				},
-                color: "teal",
-				category: "flowClamp",
-				type: "start",
-                blockWidthLines: 4,
-				defaultBlockHeightLines: 2,
-                args: [],
-				blocks: []
-			},
+			// {
+			// 	id: "1-8",
+			// 	position: {
+			// 		x: 800,
+			// 		y: 700
+			// 	},
+            //     color: "teal",
+			// 	category: "flowClamp",
+			// 	type: "start",
+            //     blockWidthLines: 4,
+			// 	defaultBlockHeightLines: 2,
+            //     args: [],
+			// 	blocks: []
+			// },
+			// {
+			// 	id: "1-9",
+			// 	position: {
+			// 		x: 200,
+			// 		y: 700
+			// 	},
+            //     color: "teal",
+			// 	category: "flowClamp",
+			// 	type: "start",
+            //     blockWidthLines: 4,
+			// 	defaultBlockHeightLines: 2,
+            //     args: [],
+			// 	blocks: []
+			// },
 			{
 				id: "1-10",
 				position: {
@@ -164,45 +164,44 @@ const workspace = [
 				defaultBlockHeightLines: 1,
                 args: []
 			},
-			{
-				id: "1-13",
-				position: {
-					x: 150,
-					y: 150
-				},
-                color: "teal",
-				category: "flowClamp",
-				type: "start",
-                blockWidthLines: 4,
-				defaultBlockHeightLines: 2,
-                args: [],
-				blocks: []
-			},
-			{
-				id: "1-14",
-				position: {
-					x: 250,
-					y: 150
-				},
-                color: "teal",
-				category: "flowClamp",
-				type: "start",
-                blockWidthLines: 4,
-				defaultBlockHeightLines: 2,
-                args: [],
-				blocks: []
-			},
+			// {
+			// 	id: "1-13",
+			// 	position: {
+			// 		x: 150,
+			// 		y: 150
+			// 	},
+            //     color: "teal",
+			// 	category: "flowClamp",
+			// 	type: "start",
+            //     blockWidthLines: 4,
+			// 	defaultBlockHeightLines: 2,
+            //     args: [],
+			// 	blocks: []
+			// },
+			// {
+			// 	id: "1-14",
+			// 	position: {
+			// 		x: 250,
+			// 		y: 150
+			// 	},
+            //     color: "teal",
+			// 	category: "flowClamp",
+			// 	type: "start",
+            //     blockWidthLines: 4,
+			// 	defaultBlockHeightLines: 2,
+            //     args: [],
+			// 	blocks: []
+			// },
 			{
 				id: "1-15",
 				position: {
 					x: 350,
 					y: 150
 				},
-                color: "teal",
-				category: "flowClamp",
+                color: "red",
+				category: "value",
 				type: "start",
-                blockWidthLines: 4,
-				defaultBlockHeightLines: 2,
+                blockWidthLines: 3,
                 args: [],
 				blocks: []
 			}
