@@ -218,6 +218,34 @@ const workspace = [
 			y: 200
 		},
 		defaultBlockHeightLines: 3,
+        blocks: [],
+		argsLength: 2,
+		args: []
+    },
+    {
+        category: "clamp",
+		type: "start",
+		avatar: "Some avatar here",
+        id: "2",
+		position: {
+			x: 200,
+			y: 600
+		},
+		defaultBlockHeightLines: 3,
+        blocks: [],
+		argsLength: 1,
+		args: []
+    },
+    {
+        category: "clamp",
+		type: "start",
+		avatar: "Some avatar here",
+        id: "2",
+		position: {
+			x: 800,
+			y: 200
+		},
+		defaultBlockHeightLines: 3,
         blocks: []
     }
 ]
