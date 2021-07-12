@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import ClampBlockSVG from "../model/BlocksModel/BlockSvg/ClampBlockSVG";
 
 export const pollingTest = (oldPosRef, currentOffset, pollingThresold) => {
   if (!oldPosRef.current.x) {
@@ -112,4 +113,29 @@ export const calculateBlockLinesTill = (blocks, blockLinesMap) => {
     container.push(sum);
   });
   return container;
+}
+
+export const getBlockWidths = (container, schema, updatedId, updatedWidth) => {
+  // recursivly iterates the all the blocks in the stack and gives how many blockLines
+  // they take up currently
+  let width = schema.blockWidthLines + ClampBlockSVG.ARG_PADDING * schema.argsLength;
+  for (let i = 0; i < (schema?.args?.length || 0); i++) {
+    if (schema.id === updatedId) {
+      width += updatedWidth;
+    } else {
+      if (schema.args[i]) {
+        width += getBlockWidths(container, schema.args[i], updatedId, updatedWidth);
+      } else {
+        width += ClampBlockSVG.ARG_PADDING;
+      }
+    }
+  }
+  container[schema.id] = width;
+  return width;
+}
+
+export const getBlockWidthWrapper = (schema, updatedId, updatedWidth) => {
+  let temp = {};
+  getBlockWidths(temp, schema, updatedId, updatedWidth);
+  return temp;
 }

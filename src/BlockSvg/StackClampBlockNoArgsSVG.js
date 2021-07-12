@@ -6,14 +6,16 @@ import { CollisionContext } from "../Contexts/CollisionContext";
 import FlowClampBlockNoArgs from "./FlowClampBlockNoArgsSVG";
 import FlowBlockNoArgsSVG from "./FlowBlockNoArgsSVG";
 import { nestedBlocksDropAreas as quadtreeBlocks, argsDropAreas as quadtreeArgs } from '../DropAreas';
-import { setupDragging, getBlockLines, calculateBlockLinesTill, getBlockLinesWrapper } from "../Utils/Blocks";
+import { setupDragging, getBlockLines, calculateBlockLinesTill, getBlockLinesWrapper, getBlockWidthWrapper } from "../Utils/Blocks";
 
 const StackClampBlockNoArgsSVG = (props) => {
   console.log("StackClampBlockNoArgsSVG Rendered");
   const { addBlock, removeBlock } = useContext(CollisionContext);
   const [reRenderChildren, setReRenderChildren] = useState(false);
-  const [currentlyHovered, setCurrentlyHovered] = useState(null);
-  let [blockLinesMap, setBlockLinesMap] = useState({});
+  const [currentlyHoveredBlock, setCurrentlyHoveredBlock] = useState(null);
+  const [currentlyHoveredArg, setCurrentlyHoveredArg] = useState(null);
+  const [blockLinesMap, setBlockLinesMap] = useState({});
+  const [blockWidthMap, setBlockWidthMap] = useState({});
 
   const updateBlockLinesMap = (updateId, updatedLines) => {
     const temp = { ...blockLinesMap };
@@ -26,11 +28,13 @@ const StackClampBlockNoArgsSVG = (props) => {
   const drag = useRef(null);
   const surroundingDiv = useRef(null);
 
-  const add = (workspace, block, index) => {
+  const addBlockToSchema = (workspace, block, index) => {
     const updatedWorkspace = addBlock(workspace, props.schema.id, index, block);
     setBlockLinesMap({ ...getBlockLinesWrapper(updatedWorkspace) })
     return updatedWorkspace;
   };
+
+  const addArgToSchema = (workspace, block, index) => {}
 
   const remove = (workspace, blockId) => {
     return removeBlock(workspace, props.schema.id, blockId);
@@ -48,15 +52,15 @@ const StackClampBlockNoArgsSVG = (props) => {
       height: 0.5 * BlocksModel.BLOCK_SIZE,
       id: props.schema.id,
       index: index,
-      addBlock: add,
-      setCurrentlyHovered: setCurrentlyHovered
+      addBlock: addBlockToSchema,
+      setCurrentlyHovered: setCurrentlyHoveredBlock
     }, true));
   };
 
   const pushToQuadtreeArgs = () => {
     const area = surroundingDiv.current.getBoundingClientRect();
     const top = area.top + 2 * BlocksModel.BLOCK_SIZE - 0.5 * BlocksModel.BLOCK_SIZE;
-    let leftOffset = area.left + (props.blockWidthLines * BlocksModel.BLOCK_SIZE);
+    let leftOffset = area.left + (props.schema.blockWidthLines * BlocksModel.BLOCK_SIZE);
     for (let i = 0; i < props.schema.argsLength; i++) {
       if (props.schema.args[i]) {
         console.log(`arg ${i} exists`);
@@ -75,7 +79,7 @@ const StackClampBlockNoArgsSVG = (props) => {
         height: 0.5 * BlocksModel.BLOCK_SIZE,
         id: props.schema.id,
         index: i,
-        setCurrentlyHovered: () => {}
+        setCurrentlyHovered: setCurrentlyHoveredArg
       });
       leftOffset += (ClampBlockSVG.ARG_PLACEHOLDER_WIDTH + ClampBlockSVG.ARG_PADDING) * BlocksModel.BLOCK_SIZE;
     }
@@ -110,14 +114,18 @@ const StackClampBlockNoArgsSVG = (props) => {
     setBlockLinesMap(temp);
   }, [JSON.stringify(props.schema.blocks)])
 
-  if (!blockLinesMap[props.schema.id]) {
-    blockLinesMap = getBlockLinesWrapper(props.schema);
+  if (blockLinesMap[props.schema.id] === undefined) {
+    setBlockLinesMap({...getBlockLinesWrapper(props.schema)});
+  }
+
+  if (blockWidthMap[props.schema.id] === undefined) {
+    setBlockWidthMap({...getBlockWidthWrapper(props.schema)});
   }
 
   blockLinesTill = calculateBlockLinesTill(props.schema.blocks, blockLinesMap);
 
   const blockLines = blockLinesMap[props.schema.id];
-  const blockWidthLines = props.blockWidthLines + ((props.schema.argsLength || 0) * ClampBlockSVG.ARG_PADDING) + ((props.schema.argsLength || 0) * ClampBlockSVG.ARG_PLACEHOLDER_WIDTH);
+  const blockWidthLines = props.schema.blockWidthLines + ((props.schema.argsLength || 0) * ClampBlockSVG.ARG_PADDING) + ((props.schema.argsLength || 0) * ClampBlockSVG.ARG_PLACEHOLDER_WIDTH);
 
   return (
     <div
@@ -153,9 +161,9 @@ const StackClampBlockNoArgsSVG = (props) => {
                  l${ClampBlockSVG.CAP_SIZE} -${ClampBlockSVG.CAP_SIZE}
                  l${ClampBlockSVG.CAP_SIZE} ${ClampBlockSVG.CAP_SIZE}
                  h${2 * (5 - ClampBlockSVG.CAP_SIZE)} 
-                 h30 
+                 h${(props.schema.blockWidthLines - 2) * 10} 
                  ${props.schema.argsLength? (()=>{
-                   let argsHolderSvg = ''
+                   let argsHolderSvg = '';
                    for (let i = 0; i < props.schema.argsLength; i++) {
                     argsHolderSvg += `
                       v${(10 - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT) / 2} 
@@ -194,7 +202,7 @@ const StackClampBlockNoArgsSVG = (props) => {
                 `}
           />
 
-          {currentlyHovered === -1 && <path
+          {currentlyHoveredBlock === -1 && <path
             stroke="yellow"
             fill="none"
             strokeWidth="1"
@@ -203,7 +211,24 @@ const StackClampBlockNoArgsSVG = (props) => {
               v${FlowBlockSVG.NOTCH_HEIGHT}
               h${FlowBlockSVG.NOTCH_WIDTH}
               v-${FlowBlockSVG.NOTCH_HEIGHT}
-              h${(props.blockWidthLines - ClampBlockSVG.STEM_WIDTH) * 10 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}`}
+              h${(props.schema.blockWidthLines - ClampBlockSVG.STEM_WIDTH) * 10 - (FlowBlockSVG.NOTCH_DISTANCE + FlowBlockSVG.NOTCH_WIDTH)}`}
+          />}
+
+          {currentlyHoveredArg !== null && <path
+            stroke="yellow"
+            fill="none"
+            strokeWidth="1"
+            d={`
+              M${props.schema.blockWidthLines*10 + currentlyHoveredArg*10*(ClampBlockSVG.ARG_PADDING + ClampBlockSVG.ARG_PLACEHOLDER_WIDTH)} 10
+              v${(10 - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT) / 2} 
+                      h-${ClampBlockSVG.ARG_NOTCH_BRIDGE_WIDTH} 
+                      v-${(ClampBlockSVG.ARG_NOTCH_HEIGHT - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT)/2}
+                      h-${ClampBlockSVG.ARG_NOTCH_WIDTH}
+                      v${ClampBlockSVG.ARG_NOTCH_HEIGHT}
+                      h${ClampBlockSVG.ARG_NOTCH_WIDTH}
+                      v-${(ClampBlockSVG.ARG_NOTCH_HEIGHT - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT)/2}
+                      h${ClampBlockSVG.ARG_NOTCH_BRIDGE_WIDTH}
+                      v${(10 - ClampBlockSVG.ARG_NOTCH_BRIDGE_HEIGHT)/2 - 1}`}
           />}
         </svg>
 
@@ -243,7 +268,7 @@ const StackClampBlockNoArgsSVG = (props) => {
                     },
                   }}
                   nested
-                  glow={index === currentlyHovered}
+                  glow={index === currentlyHoveredBlock}
                   removeBlock={remove}
                   updateBlockLinesMap={updateBlockLinesMap}
                 />
@@ -260,7 +285,7 @@ const StackClampBlockNoArgsSVG = (props) => {
                     },
                   }}
                   nested
-                  glow={index === currentlyHovered}
+                  glow={index === currentlyHoveredBlock}
                   blockLinesMap={blockLinesMap}
                   setBlockLinesMap={setBlockLinesMap}
                   updateBlockLinesMap={updateBlockLinesMap}

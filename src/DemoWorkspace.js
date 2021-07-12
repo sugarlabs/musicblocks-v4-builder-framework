@@ -217,6 +217,7 @@ const workspace = [
 			y: 200
 		},
 		defaultBlockHeightLines: 3,
+		blockWidthLines: 5,
         blocks: [],
 		argsLength: 2,
 		args: []
@@ -231,6 +232,7 @@ const workspace = [
 			y: 600
 		},
 		defaultBlockHeightLines: 3,
+		blockWidthLines: 5,
         blocks: [],
 		argsLength: 1,
 		args: []
@@ -245,6 +247,7 @@ const workspace = [
 			y: 200
 		},
 		defaultBlockHeightLines: 3,
+		blockWidthLines: 5,
         blocks: []
     }
 ]
