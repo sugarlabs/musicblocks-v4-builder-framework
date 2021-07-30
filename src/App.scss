@@ -1,0 +1,33 @@
+.App {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  .BlocksWorkspace {
+    flex: 1;
+    padding: 0;
+    overflow: scroll;
+    min-height: 100vh;
+    .Workspace {
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background-color: #efefef;
+      .StackClampBlock {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background-color: purple;
+      }
+    }
+  }
+  .BlocksMenu {
+    display: flex;
+    max-width: 100vh;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #d5d5d5;
+  }
+}
