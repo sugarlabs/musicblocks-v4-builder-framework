@@ -4,8 +4,11 @@ export default interface Block {
         x: number,
         y: number
     }
+    color: string,
     topBlockId: string,
-    parentId: string | null,
+    blockHeightLines: number,
+    previousBlockId: string | null,
+    nextBlockId?: string | null,
     argsLength?: number | null
     args?: Array[string] | null
     type: 'StackClamp' | 'Flow' | 'Value' | 'ArgValue' | 'NestedArg',

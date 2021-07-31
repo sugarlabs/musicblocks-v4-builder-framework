@@ -17,7 +17,9 @@ export const blocksSlice = createSlice({
                     x: 300,
                     y: 300
                 },
-                parentId: null,
+                color: 'purple',
+                blockHeightLines: 1,
+                previousBlockId: null,
                 topBlockId: "2",
                 argsLength: 0
             };

@@ -15,11 +15,16 @@
       height: 100%;
       position: relative;
       background-color: #efefef;
-      .StackClampBlock {
-        position: absolute;
+      .StackClamp {
         width: 100px;
         height: 100px;
-        background-color: purple;
+      }
+      .Flow {
+        width: 100px;
+        height: 100px;
+      }
+      .BlockGroup {
+        position: absolute;
       }
     }
   }
