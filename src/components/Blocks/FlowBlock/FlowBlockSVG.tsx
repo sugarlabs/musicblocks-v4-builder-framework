@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FlowConfig, BlocksConfig } from '../../../BlocksUIconfig';
 
 interface Props {
-    blockWidthLines: number
+    setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void
     blockHeightLines: number
+    blockWidthLines: number
     color: string
 }
 
 const FlowBlockSVG: React.FC<Props> = (props) => {
+    const drag: React.LegacyRef<SVGPathElement> = useRef(null);
     const { NOTCH_DISTANCE, NOTCH_HEIGHT, NOTCH_WIDTH } = FlowConfig;
     const blockLines = props.blockHeightLines + NOTCH_HEIGHT / 10;
+    useEffect(() => {
+        if (drag.current) {
+            props.setBlockPathRef(drag);
+        }
+    }, [props])
     return (
         <svg
           viewBox={`0 0 ${props.blockWidthLines * 10} ${blockLines * 10}`}
@@ -17,7 +24,7 @@ const FlowBlockSVG: React.FC<Props> = (props) => {
           height={`${BlocksConfig.BLOCK_SIZE * blockLines}px`}
         >
           <path
-            // ref={drag}
+            ref={drag}
             stroke={props.color}
             strokeWidth={".1"}
             fill={props.color}

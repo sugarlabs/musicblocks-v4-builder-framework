@@ -1,20 +1,20 @@
 import React from 'react';
 import FlowBlockSVG from './FlowBlockSVG';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateBlockPosition } from '../../../redux/store/blocksSlice';
+import { useSelector } from 'react-redux';
 
 interface Props {
+    setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void
     id: string
 }
 
 const FlowBlock: React.FC<Props> = (props) => {
     const block = useSelector((state: any) => state.blocks[props.id]);
-    const dispatch = useDispatch();
     return (
         <div className="Flow Block">
             <FlowBlockSVG 
-                blockWidthLines={block.blockWidthLines}
                 blockHeightLines={block.blockHeightLines}
+                blockWidthLines={block.blockWidthLines}
+                setBlockPathRef={props.setBlockPathRef}
                 color={block.color}/>
         </div>
     );

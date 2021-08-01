@@ -8,7 +8,7 @@ import store from './redux/store/store';
 function App() {
   return (
     <div className="App">
-      <BlocksMenu width={250} />
+      <BlocksMenu width={0} />
       <Provider store={store}>
         <BlocksWorkspace />
       </Provider>
