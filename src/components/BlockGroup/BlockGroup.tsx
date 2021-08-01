@@ -2,6 +2,7 @@ import React from 'react';
 import Block from '../../Types/Block';
 import { useSelector } from 'react-redux';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
+import { BlocksConfig } from '../../BlocksUIconfig';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
 
 interface Props {
@@ -33,7 +34,7 @@ const BlockGroup: React.FC<Props> = (props) => {
                 })()
             }
             {
-                (block.nextBlockId) && <BlockGroup id={block.nextBlockId} position={{x: 0, y: block.blockHeightLines * 100}}/>
+                (block.nextBlockId) && <BlockGroup id={block.nextBlockId} position={{x: 0, y: block.blockHeightLines * BlocksConfig.BLOCK_SIZE}}/>
             }
         </div>
     );

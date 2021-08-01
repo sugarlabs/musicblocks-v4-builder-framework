@@ -3,13 +3,14 @@ import Block from "../Types/Block";
 const demoWorkspace: Block[] = [
     {
         id: "1",
-        type: 'StackClamp',
+        type: 'Flow',
         position: {
             x: 100,
             y: 100
         },
         color: 'purple',
         blockHeightLines: 1,
+        blockWidthLines: 3,
         previousBlockId: null,
         nextBlockId: "4",
         topBlockId: "1",
@@ -26,11 +27,13 @@ const demoWorkspace: Block[] = [
         previousBlockId: null,
         topBlockId: "3",
         blockHeightLines: 1,
+        blockWidthLines: 3,
+        nextBlockId: null,
         argsLength: 0
     },
     {
         id: "4",
-        type: 'StackClamp',
+        type: 'Flow',
         position: {
             x: 300,
             y: 100
@@ -38,13 +41,14 @@ const demoWorkspace: Block[] = [
         color: 'teal',
         previousBlockId: "1",
         blockHeightLines: 1,
+        blockWidthLines: 3,
         nextBlockId: "5",
         topBlockId: "1",
         argsLength: 0
     },
     {
         id: "5",
-        type: 'StackClamp',
+        type: 'Flow',
         position: {
             x: 300,
             y: 100
@@ -52,8 +56,10 @@ const demoWorkspace: Block[] = [
         color: 'orange',
         previousBlockId: "4",
         blockHeightLines: 1,
+        blockWidthLines: 3,
         topBlockId: "1",
-        argsLength: 0
+        argsLength: 0,
+        nextBlockId: null
     }
 
 ]

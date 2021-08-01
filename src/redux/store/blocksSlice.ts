@@ -19,9 +19,11 @@ export const blocksSlice = createSlice({
                 },
                 color: 'purple',
                 blockHeightLines: 1,
-                previousBlockId: null,
+                blockWidthLines: 5,
+                nextBlockId: null,
                 topBlockId: "2",
-                argsLength: 0
+                argsLength: 0,
+                previousBlockId: null,
             };
         },
         // reducer for testing change in block
