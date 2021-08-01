@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import Block from '../../Types/Block';
-import { setupDragging } from '../../utils';
 import { BlocksConfig } from '../../BlocksUIconfig';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
+import { setupDragging, dropZones, pollingTest } from '../../utils';
 import { dragBlockGroup } from '../../redux/store/blocksSlice';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
 
@@ -16,8 +16,11 @@ interface Props {
 }
 
 const BlockGroup: React.FC<Props> = (props) => {
-    const dispatch = useDispatch();
+
     const block: Block = useSelector((state: any) => state.blocks[props.id]);
+    
+    const dispatch = useDispatch();
+    const lastPollingPosition = useRef({});
     const groupRef = useRef<HTMLDivElement>(null);
     let blockPathRef = useRef<SVGPathElement>(null);
 
@@ -34,10 +37,27 @@ const BlockGroup: React.FC<Props> = (props) => {
                     id: block.id,
                     position: { x, y }
                 }
-            ))
+            )),
+            dragging: (x: number, y: number) => {
+                if (pollingTest(lastPollingPosition, { x, y }, 50)) {
+                    console.log(`Block Group ${block.id} moved by 50 pixels`);
+                }
+            }
         });
-    })
-    
+    }, [block.id, dispatch])
+
+    useEffect(() => {
+        if (groupRef.current) {
+            const area = groupRef.current.getBoundingClientRect();
+            dropZones.horizontal.push({
+                x: area.left,
+                y: area.top + (block.blockHeightLines - 0.5) * BlocksConfig.BLOCK_SIZE,
+                id: block.id
+            })
+        }
+        console.log(dropZones.horizontal.pretty());
+    }, [block.blockHeightLines, block.id])
+
     return (
         <div
             className='BlockGroup'

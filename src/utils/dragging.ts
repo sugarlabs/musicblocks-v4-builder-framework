@@ -1,12 +1,33 @@
 import * as d3 from 'd3';
 
+export const pollingTest = (
+    oldPosRef: React.MutableRefObject<any>,
+    currentOffset: { x: number, y: number },
+    pollingThresold: number
+) => {
+    if (!oldPosRef.current.x) {
+        oldPosRef.current = {
+            ...currentOffset,
+        };
+    }
+    if (
+        Math.abs(currentOffset?.x - oldPosRef.current?.x) >= pollingThresold ||
+        Math.abs(currentOffset?.y - oldPosRef.current?.y) >= pollingThresold
+    ) {
+        oldPosRef.current.x = currentOffset.x;
+        oldPosRef.current.y = currentOffset.y;
+        return true;
+    }
+    return false;
+};
+
 export const setupDragging = (
     draggablePathRef: React.RefObject<any>,
     groupRef: React.RefObject<any>,
     dragFunctions: {
         dragEnd?: (x: number, y: number) => void,
         dragStart?: () => void,
-        dragging?: (x?: number, y?: number) => void
+        dragging?: (x: number, y: number) => void
     }
 ) => {
     if (draggablePathRef!.current) {
