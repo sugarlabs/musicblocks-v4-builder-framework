@@ -1,9 +1,10 @@
 import Quadtree from "quadtree-lib";
+import DropZone from "../Types/DropZone";
 
 class DropZones {
     private static instance: DropZones;
-    private quadtreeHorizontal: Quadtree<Quadtree.QuadtreeItem>;
-    private quadtreeVertical: Quadtree<Quadtree.QuadtreeItem>;
+    private quadtreeHorizontal: Quadtree<DropZone>;
+    private quadtreeVertical: Quadtree<DropZone>;
 
     private constructor() { 
         const vw = Math.max(
@@ -19,11 +20,11 @@ class DropZones {
         this.quadtreeVertical = new Quadtree({ width: vw, height: vh });
     }
 
-    public get horizontal(): Quadtree<Quadtree.QuadtreeItem> {
+    public get horizontal(): Quadtree<DropZone> {
         return this.quadtreeHorizontal;
     }
 
-    public get vertical(): Quadtree<Quadtree.QuadtreeItem> {
+    public get vertical(): Quadtree<DropZone> {
         return this.quadtreeVertical;
     }
 

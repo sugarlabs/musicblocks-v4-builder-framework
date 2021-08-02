@@ -1,14 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Block from '../../Types/Block';
+import DropZone from '../../Types/DropZone';
 import { BlocksConfig } from '../../BlocksUIconfig';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
-import { setupDragging, dropZones, pollingTest } from '../../utils';
 import { dragBlockGroup } from '../../redux/store/blocksSlice';
+import { setupDragging, dropZones, pollingTest } from '../../utils';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
 
 interface Props {
-    id: string // only needs id of first block in the block group
+    id: string // id of first block in block group
+    dragging?: boolean
     position?: {
         x: number,
         y: number
@@ -18,45 +20,85 @@ interface Props {
 const BlockGroup: React.FC<Props> = (props) => {
 
     const block: Block = useSelector((state: any) => state.blocks[props.id]);
-    
+
+    console.log(`BlockGroup rendered ${block.id}`);
+
     const dispatch = useDispatch();
     const lastPollingPosition = useRef({});
     const groupRef = useRef<HTMLDivElement>(null);
     let blockPathRef = useRef<SVGPathElement>(null);
+    const [dragging, setDragging] = useState(!!props.dragging);
 
     const setBlockPathRef = (ref: React.RefObject<SVGPathElement>) => {
         blockPathRef = ref;
     }
 
+    const removeDropZones = () => {
+        const dropZonesBlocks: DropZone[] = dropZones.horizontal.where({
+            id: block.id
+        });
+        dropZonesBlocks.forEach((zone) => dropZones.horizontal.remove(zone));
+    }
+
+    const addDropZones = () => {
+        const area = groupRef!.current!.getBoundingClientRect();
+        const dropZone: DropZone = {
+            x: area.left,
+            y: area.top + (block.blockHeightLines - 0.15) * BlocksConfig.BLOCK_SIZE,
+            id: block.id,
+            width: block.blockWidthLines * BlocksConfig.BLOCK_SIZE,
+            height: 0.3 * BlocksConfig.BLOCK_SIZE,
+        }
+        dropZones.horizontal.push(dropZone);
+    }
+
+    useEffect(() => {
+        if (props.dragging !== undefined)
+            setDragging(props.dragging)
+    }, [props.dragging])
+
     useEffect(() => {
         setupDragging(
             blockPathRef,
-            groupRef, {
-            dragEnd: (x: number, y: number) => dispatch(dragBlockGroup(
-                {
-                    id: block.id,
-                    position: { x, y }
-                }
-            )),
-            dragging: (x: number, y: number) => {
-                if (pollingTest(lastPollingPosition, { x, y }, 50)) {
-                    console.log(`Block Group ${block.id} moved by 50 pixels`);
+            groupRef,
+            {
+                dragStart: () => {
+                    setDragging(true);
+                },
+                dragEnd: (x: number, y: number) => {
+                    setDragging(false);
+                    dispatch(dragBlockGroup(
+                        {
+                            id: block.id,
+                            position: { x, y }
+                        }
+                    ))
+                },
+                dragging: (x: number, y: number) => {
+                    if (pollingTest(lastPollingPosition, { x, y }, 5)) {
+                        const colliding: DropZone[] = dropZones.horizontal.colliding({
+                            x,
+                            y,
+                            width: 5,
+                            height: 5,
+                        });
+                        if (colliding.length > 0) {
+                            console.log(colliding);
+                            console.log(`colliding with ${colliding[0].id}`);
+                        }
+                        // console.log(colliding.length);
+                    }
                 }
             }
-        });
+        );
     }, [block.id, dispatch])
 
     useEffect(() => {
-        if (groupRef.current) {
-            const area = groupRef.current.getBoundingClientRect();
-            dropZones.horizontal.push({
-                x: area.left,
-                y: area.top + (block.blockHeightLines - 0.5) * BlocksConfig.BLOCK_SIZE,
-                id: block.id
-            })
+        removeDropZones();
+        if (!dragging) {
+            addDropZones();
         }
-        console.log(dropZones.horizontal.pretty());
-    }, [block.blockHeightLines, block.id])
+    })
 
     return (
         <div
@@ -81,6 +123,7 @@ const BlockGroup: React.FC<Props> = (props) => {
                 block.nextBlockId
                 &&
                 <BlockGroup
+                    dragging={dragging}
                     id={block.nextBlockId}
                     position={
                         {
