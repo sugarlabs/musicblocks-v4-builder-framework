@@ -5,6 +5,7 @@ import { BlocksConfig } from '../../BlocksUIconfig';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
 import { setupDragging, dropZones, pollingTest } from '../../utils';
+import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
 import { dragBlockGroup, connectBlockGroups } from '../../redux/store/blocksSlice';
 
@@ -90,13 +91,6 @@ const BlockGroup: React.FC<Props> = (props) => {
                             }
                         ))
                     }
-                    if (props.position) {
-                        const current = groupRef.current;
-                        if (current) {
-                            current.style.top = `${props.position.y}px`;
-                            current.style.left = `${props.position.x}px`;
-                        }
-                    }
                 },
                 dragging: (x: number, y: number) => {
                     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
@@ -124,20 +118,29 @@ const BlockGroup: React.FC<Props> = (props) => {
         }
     })
 
+    const position = props.position? {
+        top: props.position.y,
+        left: props.position.x
+    } : {
+        top: block.position.y,
+        left: block.position.x
+    }
+
     return (
         <div
             className='BlockGroup'
             ref={groupRef}
             style={{
                 position: 'absolute',
-                top: props?.position?.y === undefined ? block.position.y : props.position.y,
-                left: props?.position?.x === undefined ? block.position.x : props.position.x
+                ...position
             }}>
             {
                 (() => {
                     switch (block.type) {
                         case 'Flow':
                             return <FlowBlock setBlockPathRef={setBlockPathRef} id={block.id} />
+                        case 'FlowClamp':
+                            return <FlowClampBlock setBlockPathRef={setBlockPathRef} id={block.id} />
                         case 'StackClamp':
                             return <StackClampBlock id={block.id} />
                     }
@@ -147,14 +150,14 @@ const BlockGroup: React.FC<Props> = (props) => {
                 block.nextBlockId !== null
                 &&
                 <BlockGroup
+                    key = {block.nextBlockId}
                     dragging={dragging}
                     id={block.nextBlockId}
-                    position={
-                        {
+                    position={{...{
                             x: 0,
                             y: block.blockHeightLines * BlocksConfig.BLOCK_SIZE
                         }
-                    } />
+                    }} />
             }
         </div>
     );

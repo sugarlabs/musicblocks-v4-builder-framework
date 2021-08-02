@@ -13,5 +13,5 @@ export default interface Block {
     argsLength?: number | null
     args?: string[] | null
     argWidths?: number[]
-    type: 'StackClamp' | 'Flow' | 'Value' | 'ArgValue' | 'NestedArg',
+    type: 'StackClamp' | 'FlowClamp' | 'Flow' | 'Value' | 'ArgValue' | 'NestedArg',
 }

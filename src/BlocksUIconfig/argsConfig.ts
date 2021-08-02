@@ -1,6 +1,5 @@
 export const ArgsConfig = {
     ARG_PADDING: 1,
-    STEM_WIDTH: 0.5,
     ARG_NOTCH_WIDTH: 2,
     ARG_NOTCH_HEIGHT: 4,
     ARG_NOTCH_BRIDGE_WIDTH: 4,

@@ -105,6 +105,21 @@ const demoWorkspace: Block[] = [
         topBlockId: "10",
         argsLength: 0,
         nextBlockId: null
+    },
+    {
+        id: "11",
+        type: 'FlowClamp',
+        position: {
+            x: 700,
+            y: 700
+        },
+        color: 'pink',
+        previousBlockId: null,
+        blockHeightLines: 3,
+        blockWidthLines: 4,
+        topBlockId: "10",
+        argsLength: 0,
+        nextBlockId: null
     }
 
 ]
