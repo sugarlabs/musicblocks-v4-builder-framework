@@ -60,6 +60,51 @@ const demoWorkspace: Block[] = [
         topBlockId: "1",
         argsLength: 0,
         nextBlockId: null
+    },
+    {
+        id: "8",
+        type: 'Flow',
+        position: {
+            x: 400,
+            y: 150
+        },
+        color: 'blue',
+        previousBlockId: null,
+        blockHeightLines: 1,
+        blockWidthLines: 3,
+        topBlockId: "8",
+        argsLength: 0,
+        nextBlockId: null
+    },
+    {
+        id: "9",
+        type: 'Flow',
+        position: {
+            x: 500,
+            y: 300
+        },
+        color: 'yellow',
+        previousBlockId: null,
+        blockHeightLines: 1,
+        blockWidthLines: 3,
+        topBlockId: "9",
+        argsLength: 0,
+        nextBlockId: null
+    },
+    {
+        id: "10",
+        type: 'Flow',
+        position: {
+            x: 600,
+            y: 600
+        },
+        color: 'pink',
+        previousBlockId: null,
+        blockHeightLines: 1,
+        blockWidthLines: 3,
+        topBlockId: "10",
+        argsLength: 0,
+        nextBlockId: null
     }
 
 ]

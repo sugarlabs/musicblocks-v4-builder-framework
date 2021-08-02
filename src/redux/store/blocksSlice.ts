@@ -17,6 +17,29 @@ export const blocksSlice = createSlice({
             state[id].position.x = position.x;
             state[id].position.y = position.y;
         }),
+        connectBlockGroups: ((state: { [id: string]: Block }, action: PayloadAction<{ toConnectId: string, connectedToId: string }>) => {
+            const { toConnectId, connectedToId } = action.payload;
+            let lastBlockInGroup = toConnectId;
+            while(state[lastBlockInGroup].nextBlockId !== null) {
+                lastBlockInGroup = state[lastBlockInGroup].nextBlockId as string;
+                state[lastBlockInGroup].topBlockId = state[connectedToId].topBlockId;
+            }
+            state[lastBlockInGroup].topBlockId = state[connectedToId].topBlockId;
+            if (state[toConnectId].previousBlockId !== null) {
+                const key = state[toConnectId].previousBlockId as string;
+                state[key].nextBlockId = null;
+            }
+            if (state[connectedToId].nextBlockId !== toConnectId) {
+                // the block is not being placed back to its position
+                state[lastBlockInGroup].nextBlockId = state[connectedToId].nextBlockId;
+                if (state[connectedToId].nextBlockId !== null) {
+                    const key = state[connectedToId].nextBlockId as string;
+                    state[key].previousBlockId = lastBlockInGroup;
+                }
+            }
+            state[connectedToId].nextBlockId = toConnectId;
+            state[toConnectId].previousBlockId = connectedToId;
+        }),
         // reducer for testing change in block
         updateBlockPosition: (state: { [id: string]: Block }, action: PayloadAction<{ id: string }>) => {
             const id: string = action.payload.id;
@@ -29,6 +52,6 @@ export const blocksSlice = createSlice({
     }
 })
 
-export const { deleteBlock, updateBlockPosition, dragBlockGroup } = blocksSlice.actions;
+export const { deleteBlock, updateBlockPosition, dragBlockGroup, connectBlockGroups } = blocksSlice.actions;
 
 export default blocksSlice.reducer;

@@ -4,9 +4,9 @@ import DropZone from '../../Types/DropZone';
 import { BlocksConfig } from '../../BlocksUIconfig';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
-import { dragBlockGroup } from '../../redux/store/blocksSlice';
 import { setupDragging, dropZones, pollingTest } from '../../utils';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
+import { dragBlockGroup, connectBlockGroups } from '../../redux/store/blocksSlice';
 
 interface Props {
     id: string // id of first block in block group
@@ -55,7 +55,7 @@ const BlockGroup: React.FC<Props> = (props) => {
     useEffect(() => {
         if (props.dragging !== undefined)
             setDragging(props.dragging)
-    }, [props.dragging])
+    }, [props.dragging, props.position])
 
     useEffect(() => {
         setupDragging(
@@ -67,12 +67,36 @@ const BlockGroup: React.FC<Props> = (props) => {
                 },
                 dragEnd: (x: number, y: number) => {
                     setDragging(false);
-                    dispatch(dragBlockGroup(
-                        {
-                            id: block.id,
-                            position: { x, y }
+                    const colliding: DropZone[] = dropZones.horizontal.colliding({
+                        x,
+                        y,
+                        width: 5,
+                        height: 5,
+                    });
+                    if (colliding.length > 0) {
+                        console.log(colliding);
+                        console.log(`colliding with ${colliding[0].id}`);
+                        dispatch(connectBlockGroups(
+                            {
+                                toConnectId: block.id,
+                                connectedToId: colliding[0].id
+                            }
+                        ))
+                    } else {
+                        dispatch(dragBlockGroup(
+                            {
+                                id: block.id,
+                                position: { x, y }
+                            }
+                        ))
+                    }
+                    if (props.position) {
+                        const current = groupRef.current;
+                        if (current) {
+                            current.style.top = `${props.position.y}px`;
+                            current.style.left = `${props.position.x}px`;
                         }
-                    ))
+                    }
                 },
                 dragging: (x: number, y: number) => {
                     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
@@ -120,7 +144,7 @@ const BlockGroup: React.FC<Props> = (props) => {
                 })()
             }
             {
-                block.nextBlockId
+                block.nextBlockId !== null
                 &&
                 <BlockGroup
                     dragging={dragging}
