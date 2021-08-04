@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import FlowClampBlockSVG from './FlowClampBlockSVG';
 import { useSelector } from 'react-redux';
 

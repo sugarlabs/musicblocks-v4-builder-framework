@@ -117,11 +117,63 @@ const demoWorkspace: Block[] = [
         previousBlockId: null,
         blockHeightLines: 3,
         blockWidthLines: 4,
-        topBlockId: "10",
+        topBlockId: "11",
+        childBlockId: null,
+        defaultBlockHeightLines: 3,
+        argsLength: 0,
+        nextBlockId: null
+    },
+    {
+        id: "12",
+        type: 'FlowClamp',
+        position: {
+            x: 850,
+            y: 700
+        },
+        color: 'brown',
+        previousBlockId: null,
+        blockHeightLines: 3,
+        blockWidthLines: 4,
+        topBlockId: "12",
+        childBlockId: null,
+        defaultBlockHeightLines: 3,
+        argsLength: 0,
+        nextBlockId: null
+    },
+    {
+        id: "13",
+        type: 'FlowClamp',
+        position: {
+            x: 950,
+            y: 700
+        },
+        color: 'grey',
+        previousBlockId: null,
+        blockHeightLines: 3,
+        blockWidthLines: 4,
+        topBlockId: "13",
+        childBlockId: null,
+        defaultBlockHeightLines: 3,
+        argsLength: 0,
+        nextBlockId: null
+    },
+    {
+        id: "14",
+        type: 'FlowClamp',
+        position: {
+            x: 1050,
+            y: 700
+        },
+        color: 'teal',
+        previousBlockId: null,
+        blockHeightLines: 3,
+        blockWidthLines: 4,
+        topBlockId: "14",
+        childBlockId: null,
+        defaultBlockHeightLines: 3,
         argsLength: 0,
         nextBlockId: null
     }
-
 ]
 
 export const loadWorkSpace = () => {

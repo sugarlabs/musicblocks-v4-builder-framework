@@ -10,7 +10,7 @@ const BlocksWorkspace: React.FC = () => {
         <div className="BlocksWorkspace">
             <div className="Workspace">
                 {topLevelBlocks.map((key: any, index) => {
-                  return <BlockGroup key={index} id={blocks[key].id} />})}
+                  return <BlockGroup key={blocks[key].id} id={blocks[key].id} />})}
             </div>
         </div>
     );
