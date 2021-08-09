@@ -9,12 +9,99 @@ const demoWorkspace: Block[] = [
             y: 100
         },
         color: 'purple',
-        blockHeightLines: 1,
         blockWidthLines: 3,
+        blockHeightLines: 1,
+        defaultBlockWidthLines: 3,
         previousBlockId: null,
         nextBlockId: "4",
         topBlockId: "1",
         argsLength: 0
+    },
+    {
+        id: "100",
+        type: 'Value',
+        position: {
+            x: 100,
+            y: 700
+        },
+        color: 'purple',
+        blockWidthLines: 2.5,
+        blockHeightLines: 1,
+        defaultBlockWidthLines: 2.5,
+        previousBlockId: null,
+        nextBlockId: null,
+        topBlockId: "100",
+        argsLength: 0
+    },
+    {
+        id: "101",
+        type: 'Value',
+        position: {
+            x: 300,
+            y: 700
+        },
+        color: 'orange',
+        blockWidthLines: 2.5,
+        blockHeightLines: 1,
+        defaultBlockWidthLines: 2.5,
+        previousBlockId: null,
+        nextBlockId: null,
+        topBlockId: "101",
+        argsLength: 0
+    },
+    {
+        id: "104",
+        type: 'NestedArg',
+        position: {
+            x: 700,
+            y: 500
+        },
+        color: 'pink',
+        previousBlockId: null,
+        blockHeightLines: 1,
+        defaultBlockWidthLines: 2,
+        blockWidthLines: 7,
+        topBlockId: "104",
+        argsLength: 2,
+        args: [null, null],
+        argWidths: [0, 0],
+        nextBlockId: null
+    },
+    {
+        id: "105",
+        type: 'NestedArg',
+        position: {
+            x: 700,
+            y: 400
+        },
+        color: 'black',
+        previousBlockId: null,
+        blockHeightLines: 1,
+        defaultBlockWidthLines: 2,
+        blockWidthLines: 7,
+        topBlockId: "105",
+        argsLength: 2,
+        args: [null, null],
+        argWidths: [0, 0],
+        nextBlockId: null
+    },
+    {
+        id: "106",
+        type: 'NestedArg',
+        position: {
+            x: 700,
+            y: 300
+        },
+        color: 'red',
+        previousBlockId: null,
+        blockHeightLines: 1,
+        defaultBlockWidthLines: 2,
+        blockWidthLines: 4.5,
+        topBlockId: "106",
+        argsLength: 1,
+        args: [null],
+        argWidths: [0],
+        nextBlockId: null
     },
     {
         id: "3",
@@ -28,6 +115,7 @@ const demoWorkspace: Block[] = [
         topBlockId: "3",
         blockHeightLines: 1,
         blockWidthLines: 3,
+        defaultBlockWidthLines: 3,
         nextBlockId: null,
         argsLength: 0
     },
@@ -42,6 +130,7 @@ const demoWorkspace: Block[] = [
         previousBlockId: "1",
         blockHeightLines: 1,
         blockWidthLines: 3,
+        defaultBlockWidthLines: 3,
         nextBlockId: "5",
         topBlockId: "1",
         argsLength: 0
@@ -57,6 +146,7 @@ const demoWorkspace: Block[] = [
         previousBlockId: "4",
         blockHeightLines: 1,
         blockWidthLines: 3,
+        defaultBlockWidthLines: 3,
         topBlockId: "1",
         argsLength: 0,
         nextBlockId: null
@@ -72,6 +162,7 @@ const demoWorkspace: Block[] = [
         previousBlockId: null,
         blockHeightLines: 1,
         blockWidthLines: 3,
+        defaultBlockWidthLines: 3,
         topBlockId: "8",
         argsLength: 0,
         nextBlockId: null
@@ -87,6 +178,7 @@ const demoWorkspace: Block[] = [
         previousBlockId: null,
         blockHeightLines: 1,
         blockWidthLines: 3,
+        defaultBlockWidthLines: 3,
         topBlockId: "9",
         argsLength: 0,
         nextBlockId: null
@@ -102,6 +194,7 @@ const demoWorkspace: Block[] = [
         previousBlockId: null,
         blockHeightLines: 1,
         blockWidthLines: 3,
+        defaultBlockWidthLines: 3,
         topBlockId: "10",
         argsLength: 0,
         nextBlockId: null
@@ -116,6 +209,7 @@ const demoWorkspace: Block[] = [
         color: 'pink',
         previousBlockId: null,
         blockHeightLines: 3,
+        defaultBlockWidthLines: 4,
         blockWidthLines: 4,
         topBlockId: "11",
         childBlockId: null,
@@ -133,6 +227,7 @@ const demoWorkspace: Block[] = [
         color: 'brown',
         previousBlockId: null,
         blockHeightLines: 3,
+        defaultBlockWidthLines: 4,
         blockWidthLines: 4,
         topBlockId: "12",
         childBlockId: null,
@@ -150,11 +245,14 @@ const demoWorkspace: Block[] = [
         color: 'grey',
         previousBlockId: null,
         blockHeightLines: 3,
-        blockWidthLines: 4,
+        defaultBlockWidthLines: 4,
         topBlockId: "13",
         childBlockId: null,
         defaultBlockHeightLines: 3,
-        argsLength: 0,
+        blockWidthLines: 6.5,
+        argsLength: 1,
+        args: [null],
+        argWidths: [0],
         nextBlockId: null
     },
     {
@@ -167,11 +265,14 @@ const demoWorkspace: Block[] = [
         color: 'teal',
         previousBlockId: null,
         blockHeightLines: 3,
-        blockWidthLines: 4,
+        defaultBlockWidthLines: 4,
         topBlockId: "14",
         childBlockId: null,
         defaultBlockHeightLines: 3,
-        argsLength: 0,
+        blockWidthLines: 9,
+        argsLength: 2,
+        args: [null, null],
+        argWidths: [0, 0],
         nextBlockId: null
     }
 ]

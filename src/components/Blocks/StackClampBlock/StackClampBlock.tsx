@@ -11,9 +11,9 @@ const StackClampBlock: React.FC<Props> = (props) => {
     console.log(`Stack Clamp Block ${props.id} rerendered`);
     const dispatch = useDispatch();
     return (
-        <div className="StackClamp Block" style={{backgroundColor: block.color}}>
-                {props.id}
-                <button onClick={() => dispatch(updateBlockPosition({id: props.id}))}>Update</button>
+        <div className="StackClamp Block" style={{ backgroundColor: block.color }}>
+            {props.id}
+            <button onClick={() => dispatch(updateBlockPosition({ id: props.id }))}>Update</button>
         </div>
     );
 }

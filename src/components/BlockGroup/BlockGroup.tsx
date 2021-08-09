@@ -3,11 +3,14 @@ import Block from '../../Types/Block';
 import DropZone from '../../Types/DropZone';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
-import { BlocksConfig, ClampConfig } from '../../BlocksUIconfig';
+import { ArgsConfig, BlocksConfig, ClampConfig } from '../../BlocksUIconfig';
 import { setupDragging, dropZones, pollingTest } from '../../utils';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
-import { dragBlockGroup, connectBlockGroups, connectChild } from '../../redux/store/blocksSlice';
+import { dragBlockGroup, connectBlockGroups, connectChild, connectArg } from '../../redux/store/blocksSlice';
+import ValueBlock from '../Blocks/ValueBlock/ValueBlock';
+import DropZoneArg from '../../Types/DropZoneArg';
+import NestedArgBlock from '../Blocks/NestedArgBlock/NestedArgBlock'
 
 interface Props {
     id: string // id of first block in block group
@@ -22,6 +25,9 @@ interface Props {
 const BlockGroup: React.FC<Props> = (props) => {
 
     const block: Block = useSelector((state: any) => state.blocks[props.id]);
+    const isArg = block.type === 'Value' ||
+        block.type === 'ArgValue' ||
+        block.type === 'NestedArg';
 
     console.log(`BlockGroup rendered ${block.id}`);
 
@@ -35,23 +41,16 @@ const BlockGroup: React.FC<Props> = (props) => {
         blockPathRef = ref;
     }
 
-    const removeDropZones = () => {
-        const dropZonesBlocks: DropZone[] = dropZones.horizontal.find((element) => {
-            return element.id === block.id || element.id === `${block.id}-child`;
-        });
-        dropZonesBlocks.forEach((zone) => dropZones.horizontal.remove(zone));
-    }
-
     const addDropZones = () => {
         const area = groupRef!.current!.getBoundingClientRect();
         const dropZone: DropZone = {
             x: area.left,
             y: area.top + (block.blockHeightLines - 0.15) * BlocksConfig.BLOCK_SIZE,
             id: block.id,
-            width: block.blockWidthLines * BlocksConfig.BLOCK_SIZE,
+            width: block.defaultBlockWidthLines * BlocksConfig.BLOCK_SIZE,
             height: 0.3 * BlocksConfig.BLOCK_SIZE,
         }
-        dropZones.horizontal.push(dropZone);
+        dropZones.flow.push(dropZone);
     }
 
     const addChildDropZone = () => {
@@ -60,10 +59,44 @@ const BlockGroup: React.FC<Props> = (props) => {
             x: area.left + ClampConfig.STEM_WIDTH * BlocksConfig.BLOCK_SIZE,
             y: area.top + (1 - 0.15) * BlocksConfig.BLOCK_SIZE,
             id: `${block.id}-child`,
-            width: block.blockWidthLines / 2 * BlocksConfig.BLOCK_SIZE,
+            width: block.defaultBlockWidthLines / 2 * BlocksConfig.BLOCK_SIZE,
             height: 0.3 * BlocksConfig.BLOCK_SIZE,
         }
-        dropZones.horizontal.push(dropZone);
+        dropZones.flow.push(dropZone);
+    }
+
+    const dropAreaXoffset = (block: Block, i: number) => {
+        const { defaultBlockWidthLines, args, argWidths } = block
+        if (defaultBlockWidthLines && args && argWidths) {
+            return ((defaultBlockWidthLines || 0)
+                + (ArgsConfig.ARG_PADDING * i)
+                + (args || []).slice(0, i).reduce(
+                    (acc, curr, index) => {
+                        if (curr === null) {
+                            return acc + ArgsConfig.ARG_PLACEHOLDER_WIDTH
+                        } else {
+                            return acc + argWidths[index]
+                        }
+                    }, 0));
+        }
+        return 0;
+    }
+
+    const addArgDropZone = () => {
+        const area = groupRef!.current!.getBoundingClientRect();
+        for (let i = 0; i < (block.argsLength || 0); i++) {
+            const dropZone: DropZoneArg = {
+                x: area.left
+                    + dropAreaXoffset(block, i)
+                    * BlocksConfig.BLOCK_SIZE,
+                y: area.top + (1 - 0.5) * BlocksConfig.BLOCK_SIZE,
+                id: `${block.id}`,
+                index: i,
+                width: ArgsConfig.ARG_PLACEHOLDER_WIDTH * BlocksConfig.BLOCK_SIZE,
+                height: 0.5 * BlocksConfig.BLOCK_SIZE,
+            }
+            dropZones.arg.push(dropZone);
+        }
     }
 
     useEffect(() => {
@@ -81,29 +114,42 @@ const BlockGroup: React.FC<Props> = (props) => {
                 },
                 dragEnd: (x: number, y: number) => {
                     setDragging(false);
-                    const colliding: DropZone[] = dropZones.horizontal.colliding({
-                        x,
-                        y,
-                        width: 5,
-                        height: 5,
-                    });
-                    if (colliding.length > 0) {
-                        console.log(colliding);
-                        console.log(`colliding with ${colliding[0].id}`);
-                        if (colliding[0].id.indexOf('-child') !== -1) {
-                            dispatch(connectChild({
-                                childId: block.id,
-                                clampId: colliding[0].id.slice(0, colliding[0].id.indexOf('-child'))
+                    let collidingCount = 0;
+                    if (isArg) {
+                        console.clear();
+                        console.log('HERE');
+                        const collidingArgZones: DropZoneArg[] = dropZones.getCollidingArgZones(x, y, 5, block.blockHeightLines * BlocksConfig.BLOCK_SIZE)
+                        collidingCount = collidingArgZones.length;
+                        console.log(collidingArgZones);
+                        if (collidingCount > 0) {
+                            dispatch(connectArg({
+                                argId: block.id,
+                                blockId: collidingArgZones[0].id,
+                                argPos: collidingArgZones[0].index,
                             }))
-                        } else {
-                            dispatch(connectBlockGroups(
-                                {
-                                    toConnectId: block.id,
-                                    connectedToId: colliding[0].id
-                                }
-                            ))
                         }
                     } else {
+                        const collidingFlowZones: DropZone[] = dropZones.getCollidingFlowZones(x, y, 5, 5);
+                        collidingCount = collidingFlowZones.length;
+                        if (collidingCount > 0) {
+                            console.log(collidingFlowZones);
+                            console.log(`colliding with ${collidingFlowZones[0].id}`);
+                            if (collidingFlowZones[0].id.indexOf('-child') !== -1) {
+                                dispatch(connectChild({
+                                    childId: block.id,
+                                    clampId: collidingFlowZones[0].id.slice(0, collidingFlowZones[0].id.indexOf('-child'))
+                                }))
+                            } else {
+                                dispatch(connectBlockGroups(
+                                    {
+                                        toConnectId: block.id,
+                                        connectedToId: collidingFlowZones[0].id
+                                    }
+                                ))
+                            }
+                        } 
+                    }
+                    if (collidingCount === 0) {
                         dispatch(dragBlockGroup(
                             {
                                 id: block.id,
@@ -114,11 +160,11 @@ const BlockGroup: React.FC<Props> = (props) => {
                 },
                 dragging: (x: number, y: number) => {
                     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
-                        const colliding: DropZone[] = dropZones.horizontal.colliding({
+                        const colliding: DropZone[] = (isArg ? dropZones.arg : dropZones.flow).colliding({
                             x,
                             y,
                             width: 5,
-                            height: 5,
+                            height: isArg ? block.blockHeightLines * BlocksConfig.BLOCK_SIZE : 5,
                         });
                         if (colliding.length > 0) {
                             console.log(colliding);
@@ -132,11 +178,15 @@ const BlockGroup: React.FC<Props> = (props) => {
     }, [block.id, dispatch])
 
     useEffect(() => {
-        removeDropZones();
+        dropZones.removeFlowZones(block.id);
+        dropZones.removeArgZones(block.id);
         if (!dragging) {
             addDropZones();
             if (block.type === 'StackClamp' || block.type === 'FlowClamp') {
                 addChildDropZone();
+            }
+            if (block.argsLength) {
+                addArgDropZone();
             }
         }
     })
@@ -149,6 +199,7 @@ const BlockGroup: React.FC<Props> = (props) => {
         left: block.position.x
     }
 
+    const argNotchAdjustment = (ArgsConfig.ARG_NOTCH_BRIDGE_WIDTH + ArgsConfig.ARG_NOTCH_WIDTH) / 10;
     return (
         <div
             className='BlockGroup'
@@ -162,20 +213,36 @@ const BlockGroup: React.FC<Props> = (props) => {
                     switch (block.type) {
                         case 'Flow':
                             return <FlowBlock setBlockPathRef={setBlockPathRef} id={block.id} />
+                        case 'Value':
+                            return <ValueBlock setBlockPathRef={setBlockPathRef} id={block.id} />
+                        case 'NestedArg':
+                            return (<>
+                                <NestedArgBlock setBlockPathRef={setBlockPathRef} id={block.id} />
+                                {(block.argsLength && block.args) ? block.args.map((arg, i) => arg !== null ? <BlockGroup 
+                                    key={arg}
+                                    id={arg}
+                                    position={{x: (dropAreaXoffset(block, i)) * BlocksConfig.BLOCK_SIZE, y: 0}}
+                                    /> : ''): ''}
+                                </>)
                         case 'FlowClamp':
                             return (<>
                                 <FlowClampBlock setBlockPathRef={setBlockPathRef} id={block.id} />
-                                    {block.childBlockId && <BlockGroup
-                                        position={{
-                                            ...{
-                                                x: ClampConfig.STEM_WIDTH * BlocksConfig.BLOCK_SIZE,
-                                                y: 1 * BlocksConfig.BLOCK_SIZE
-                                            }
-                                        }}
-                                        dragging={dragging}
-                                        key={block.childBlockId}
-                                        id={block.childBlockId} />}
-                                </>)
+                                {(block.argsLength && block.args) ? block.args.map((arg, i) => arg !== null ? <BlockGroup 
+                                    key={arg}
+                                    id={arg}
+                                    position={{x: (dropAreaXoffset(block, i) - argNotchAdjustment) * BlocksConfig.BLOCK_SIZE, y: 0}}
+                                    /> : ''): ''}
+                                {block.childBlockId && <BlockGroup
+                                    position={{
+                                        ...{
+                                            x: ClampConfig.STEM_WIDTH * BlocksConfig.BLOCK_SIZE,
+                                            y: 1 * BlocksConfig.BLOCK_SIZE
+                                        }
+                                    }}
+                                    dragging={dragging}
+                                    key={block.childBlockId}
+                                    id={block.childBlockId} />}
+                            </>)
                         case 'StackClamp':
                             return <StackClampBlock id={block.id} />
                     }

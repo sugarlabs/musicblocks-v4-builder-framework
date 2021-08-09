@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { FlowConfig, BlocksConfig } from '../../../BlocksUIconfig';
+import { FlowConfig, BlocksConfig, ArgsConfig } from '../../../BlocksUIconfig';
 
 interface Props {
     setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void
     blockHeightLines: number
-    blockWidthLines: number
+    defaultBlockWidthLines: number
     color: string
 }
 
@@ -19,8 +19,8 @@ const FlowBlockSVG: React.FC<Props> = (props) => {
     }, [props])
     return (
         <svg
-          viewBox={`0 0 ${props.blockWidthLines * 10} ${blockLines * 10}`}
-          width={`${BlocksConfig.BLOCK_SIZE * props.blockWidthLines}px`}
+          viewBox={`0 0 ${props.defaultBlockWidthLines * 10} ${blockLines * 10}`}
+          width={`${BlocksConfig.BLOCK_SIZE * props.defaultBlockWidthLines}px`}
           height={`${BlocksConfig.BLOCK_SIZE * blockLines}px`}
         >
           <path
@@ -34,11 +34,11 @@ const FlowBlockSVG: React.FC<Props> = (props) => {
                  v${NOTCH_HEIGHT}
                  h${NOTCH_WIDTH}
                  v-${NOTCH_HEIGHT}
-                 h${10 * props.blockWidthLines -
+                 h${10 * props.defaultBlockWidthLines -
               (NOTCH_DISTANCE + NOTCH_WIDTH)
               } 
                  v${10 * 1}
-                 h-${10 * props.blockWidthLines -
+                 h-${10 * props.defaultBlockWidthLines -
               (NOTCH_DISTANCE + NOTCH_WIDTH)
               } 
                  v${NOTCH_HEIGHT} 
@@ -57,7 +57,7 @@ const FlowBlockSVG: React.FC<Props> = (props) => {
               v${NOTCH_HEIGHT}
               h${NOTCH_WIDTH}
               v-${NOTCH_HEIGHT}
-              h${(props.blockWidthLines) * 10 - (NOTCH_DISTANCE + NOTCH_WIDTH)}`}
+              h${(props.defaultBlockWidthLines) * 10 - (NOTCH_DISTANCE + NOTCH_WIDTH)}`}
           />} */}
         </svg>
     )

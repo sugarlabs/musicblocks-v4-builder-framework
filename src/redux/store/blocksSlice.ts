@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import { current } from "@reduxjs/toolkit";
 import { updateBlockLines } from "../../utils/blockLines";
+import { updateArgWidths } from "../../utils/argWidths";
 import { loadWorkSpace } from "../demoWorkspace";
 import Block from "../../Types/Block";
 
@@ -8,6 +9,10 @@ const setTopBlockId = (state: { [id: string]: Block }, elementId: string, newTop
     state[elementId].topBlockId = newTopBlockId;
     if (state[elementId].childBlockId) {
         setTopBlockId(state, state[elementId].childBlockId as string, newTopBlockId)
+    }
+    if (state[elementId].type === 'NestedArg') {
+        state[elementId].args?.forEach(arg => arg !== null && setTopBlockId(state, arg, newTopBlockId))
+        return;
     }
     if (state[elementId].nextBlockId) {
         setTopBlockId(state, state[elementId].nextBlockId as string, newTopBlockId);
@@ -21,8 +26,14 @@ export const blocksSlice = createSlice({
         dragBlockGroup: ((state: { [id: string]: Block }, action: PayloadAction<{ id: string, position: { x: number, y: number } }>) => {
             const { id, position } = action.payload;
             const previousBlock = state[id].previousBlockId;
+            const isArg = state[id].type === 'Value' || state[id].type === 'NestedArg'; 
             if (previousBlock !== null) {
-                if (state[previousBlock].childBlockId  && state[previousBlock].childBlockId === id) {
+                if (isArg) {
+                    const index = state[previousBlock].args?.indexOf(id);
+                    const args = state[previousBlock].args;
+                    args && (args[index as number] = null);
+                    args && (state[previousBlock].args = [...args]);
+                } else if (state[previousBlock].childBlockId  && state[previousBlock].childBlockId === id) {
                     state[previousBlock].childBlockId = null;
                 } else {
                     state[previousBlock].nextBlockId = null;
@@ -31,10 +42,34 @@ export const blocksSlice = createSlice({
             }
             state[id].position.x = position.x;
             state[id].position.y = position.y;
-            state = {...updateBlockLines(state, state[id].topBlockId)};
+            if (isArg) {
+                state = {...updateArgWidths(state, state[id].topBlockId)}
+            } else {
+                state = {...updateBlockLines(state, state[id].topBlockId)};
+            }
             const topBlockUpdatedState = {...state};
             setTopBlockId(topBlockUpdatedState, id, id);
             state = {...topBlockUpdatedState};
+        }),
+        connectArg: ((state: { [id: string]: Block }, action: PayloadAction<{ blockId: string, argId: string, argPos: number }>) => {
+            const { blockId, argId, argPos } = action.payload;
+            if (state[blockId] && state[blockId].args !== undefined) {
+                const args = state[blockId].args;
+                args && (args[argPos] = argId);
+                args && (state[blockId].args = [...args]);
+            }
+            state[argId].previousBlockId = blockId;
+
+            if (state[blockId].type.indexOf('Clamp') !== -1) {
+                state[argId].topBlockId = blockId;
+            } else {
+                const topBlockUpdatedState = {...state};
+                setTopBlockId(topBlockUpdatedState, argId, state[blockId].topBlockId);
+                state = {...topBlockUpdatedState};
+            }
+
+            // state[argId].topBlockId = state[blockId].topBlockId;
+            state = {...updateArgWidths(state, state[argId].topBlockId)};
         }),
         connectBlockGroups: ((state: { [id: string]: Block }, action: PayloadAction<{ toConnectId: string, connectedToId: string }>) => {
             const { toConnectId, connectedToId } = action.payload;
@@ -109,6 +144,7 @@ export const blocksSlice = createSlice({
 })
 
 export const {
+    connectArg,
     deleteBlock,
     connectChild,
     dragBlockGroup,

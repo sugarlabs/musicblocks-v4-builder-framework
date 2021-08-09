@@ -24,6 +24,12 @@
       }
       .BlockGroup {
         position: absolute;
+        pointer-events: none;
+        svg {
+          path {
+            pointer-events: fill;
+          }
+        }
       }
     }
   }
