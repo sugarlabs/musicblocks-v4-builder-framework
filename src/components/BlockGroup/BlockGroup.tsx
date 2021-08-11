@@ -3,8 +3,8 @@ import Block from '../../Types/Block';
 import DropZone from '../../Types/DropZone';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
-import { ArgsConfig, BlocksConfig, ClampConfig } from '../../BlocksUIconfig';
 import { setupDragging, dropZones, pollingTest } from '../../utils';
+import { ArgsConfig, BlocksConfig, ClampConfig } from '../../BlocksUIconfig';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
 import { dragBlockGroup, connectBlockGroups, connectChild, connectArg } from '../../redux/store/blocksSlice';
@@ -32,6 +32,7 @@ const BlockGroup: React.FC<Props> = (props) => {
     console.log(`BlockGroup rendered ${block.id}`);
 
     const dispatch = useDispatch();
+    const dragStartPosition = useRef({});
     const lastPollingPosition = useRef({});
     const groupRef = useRef<HTMLDivElement>(null);
     let blockPathRef = useRef<SVGPathElement>(null);
@@ -106,14 +107,22 @@ const BlockGroup: React.FC<Props> = (props) => {
 
     useEffect(() => {
         setupDragging(
+            {
+                dragStartPosition,
+                restoreThreshold: 25,
+                restoreEnabled: block.previousBlockId !== null
+            },
             blockPathRef,
             groupRef,
             {
                 dragStart: () => {
                     setDragging(true);
                 },
-                dragEnd: (x: number, y: number) => {
+                dragEnd: (x: number, y: number, storeUpdate: boolean) => {
                     setDragging(false);
+                    if (!storeUpdate) {
+                        return;
+                    }
                     let collidingCount = 0;
                     if (isArg) {
                         console.clear();

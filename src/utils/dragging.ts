@@ -21,11 +21,26 @@ export const pollingTest = (
     return false;
 };
 
+const dragThresholdTest = (
+    startPosition: { x: number, y: number },
+    currentPosition: { x: number, y: number },
+    restoreThreshold: number,
+    restoreEnabled: boolean) => {
+    return Math.abs(startPosition.x - currentPosition.x) < restoreThreshold &&
+        Math.abs(startPosition.y - currentPosition.y) < restoreThreshold &&
+        restoreEnabled;
+}
+
 export const setupDragging = (
+    dragConfig: {
+        dragStartPosition: React.MutableRefObject<any>,
+        restoreThreshold: number,
+        restoreEnabled: boolean
+    },
     draggablePathRef: React.RefObject<any>,
     groupRef: React.RefObject<any>,
     dragFunctions: {
-        dragEnd?: (x: number, y: number) => void,
+        dragEnd?: (x: number, y: number, update: boolean) => void,
         dragStart?: () => void,
         dragging?: (x: number, y: number) => void
     }
@@ -34,6 +49,9 @@ export const setupDragging = (
         const svg = d3.select(draggablePathRef.current);
         let layerX = 0;
         let layerY = 0;
+        let startPosition: { x: number, y: number } | null = null;
+        let thresholdBreached = false;
+        let updateClamp = false;
         svg.on("mousedown", (event: any) => {
             event.stopPropagation();
             event.preventDefault();
@@ -45,6 +63,10 @@ export const setupDragging = (
                 .drag()
                 .on("start", (event: any) => {
                     // console.log(event);
+                    dragConfig.dragStartPosition.current = {
+                        x: groupRef!.current!.style.left,
+                        y: groupRef!.current!.style.top
+                    }
                     dragFunctions?.dragStart && dragFunctions.dragStart();
                     groupRef!.current!.style.zIndex = '1000';
                 })
@@ -55,17 +77,33 @@ export const setupDragging = (
                     groupRef!.current!.style.position = 'fixed';
                     groupRef!.current!.style.top = `${divY}px`;
                     groupRef!.current!.style.left = `${divX}px`;
+                    if (!startPosition) {
+                        startPosition = {
+                            x: divX,
+                            y: divY
+                        }
+                    }
                     dragFunctions?.dragging && dragFunctions.dragging(divX, divY);
                 })
                 .on("end", (event: any) => {
                     const divX = event.sourceEvent.clientX - layerX;
                     const divY = event.sourceEvent.clientY - layerY;
-                    // console.log(event);
-                    console.log(divX);
-                    console.log(divY);
+                    let storeUpdate = true;
+
+                    if (startPosition && dragThresholdTest(
+                        startPosition,
+                        { x: divX, y: divY },
+                        dragConfig.restoreThreshold,
+                        dragConfig.restoreEnabled)) {
+                        console.log("Restoring Position of Block");
+                        groupRef.current.style.left = dragConfig.dragStartPosition.current.x;
+                        groupRef.current.style.top = dragConfig.dragStartPosition.current.y;
+                        storeUpdate = false;
+                    }
+                    startPosition = null;
                     groupRef!.current!.style.position = 'absolute';
                     groupRef!.current!.style.zIndex = 'auto';
-                    dragFunctions?.dragEnd && dragFunctions.dragEnd(divX, divY);
+                    dragFunctions?.dragEnd && dragFunctions.dragEnd(divX, divY, storeUpdate);
                 })
         );
     }
