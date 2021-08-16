@@ -21,13 +21,13 @@ export const pollingTest = (
     return false;
 };
 
-const dragThresholdTest = (
+export const dragThresholdTest = (
     startPosition: { x: number, y: number },
     currentPosition: { x: number, y: number },
     restoreThreshold: number,
     restoreEnabled: boolean) => {
-    return Math.abs(startPosition.x - currentPosition.x) < restoreThreshold &&
-        Math.abs(startPosition.y - currentPosition.y) < restoreThreshold &&
+    return (Math.abs(startPosition.x - currentPosition.x) < restoreThreshold) &&
+        (Math.abs(startPosition.y - currentPosition.y) < restoreThreshold) &&
         restoreEnabled;
 }
 
@@ -42,7 +42,7 @@ export const setupDragging = (
     dragFunctions: {
         dragEnd?: (x: number, y: number, update: boolean) => void,
         dragStart?: () => void,
-        dragging?: (x: number, y: number) => void
+        dragging?: (x: number, y: number, startPosition: { x: number, y: number }) => void
     }
 ) => {
     if (draggablePathRef!.current) {
@@ -50,8 +50,6 @@ export const setupDragging = (
         let layerX = 0;
         let layerY = 0;
         let startPosition: { x: number, y: number } | null = null;
-        let thresholdBreached = false;
-        let updateClamp = false;
         svg.on("mousedown", (event: any) => {
             event.stopPropagation();
             event.preventDefault();
@@ -83,7 +81,7 @@ export const setupDragging = (
                             y: divY
                         }
                     }
-                    dragFunctions?.dragging && dragFunctions.dragging(divX, divY);
+                    dragFunctions?.dragging && dragFunctions.dragging(divX, divY, startPosition);
                 })
                 .on("end", (event: any) => {
                     const divX = event.sourceEvent.clientX - layerX;

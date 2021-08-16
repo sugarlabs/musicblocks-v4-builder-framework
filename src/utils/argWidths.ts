@@ -1,7 +1,7 @@
 import { ArgsConfig } from '../BlocksUIconfig';
 import Block from '../Types/Block'
 
-export const updateArgWidths = (state: { [id: string]: Block }, id: string): { [id: string]: Block } => {
+export const updateArgWidths = (state: { [id: string]: Block }, id: string, ignoredArgId?: string): { [id: string]: Block } => {
     if (state[id].type === 'Value')
         return state;
     const numArgs = state[id].argsLength as number;
@@ -13,8 +13,11 @@ export const updateArgWidths = (state: { [id: string]: Block }, id: string): { [
             if (args && args[i] === null) {
                 blockWidth += ArgsConfig.ARG_PLACEHOLDER_WIDTH;
                 argWidths && (argWidths[i] = ArgsConfig.ARG_PLACEHOLDER_WIDTH);
+            } else if (args[i] === ignoredArgId) {
+                blockWidth += ArgsConfig.ARG_PLACEHOLDER_WIDTH;
+                argWidths && (argWidths[i] = ArgsConfig.ARG_PLACEHOLDER_WIDTH);
             } else {
-                state = {...updateArgWidths(state, args[i] as string)};
+                state = {...updateArgWidths(state, args[i] as string, ignoredArgId)};
                 blockWidth += state[args[i] as string].blockWidthLines;
                 argWidths && (argWidths[i] = state[args[i] as string].blockWidthLines);
             }

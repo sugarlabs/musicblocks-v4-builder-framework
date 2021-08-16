@@ -23,6 +23,20 @@ export const blocksSlice = createSlice({
     name: 'blocks',
     initialState: loadWorkSpace(),
     reducers: {
+        draggingParentUpdate: ((state: { [id: string]: Block }, action: PayloadAction<{ ignoreBlockId: string }>) => {
+            const { ignoreBlockId } = action.payload;
+            const topBlockId = state[ignoreBlockId].topBlockId;
+            const type = state[ignoreBlockId].type;
+            if (state[ignoreBlockId].previousBlockId === null) {
+                return;
+            } 
+            if (type === 'Value' || type === 'NestedArg') {
+                state = {...updateArgWidths(state, topBlockId, ignoreBlockId)}
+            } else {
+                state = {...updateBlockLines(state, topBlockId, ignoreBlockId)};
+            }
+            topBlockId && console.log(state[topBlockId].blockHeightLines);
+        }),
         dragBlockGroup: ((state: { [id: string]: Block }, action: PayloadAction<{ id: string, position: { x: number, y: number } }>) => {
             const { id, position } = action.payload;
             const previousBlock = state[id].previousBlockId;
@@ -150,6 +164,7 @@ export const {
     dragBlockGroup,
     connectBlockGroups,
     updateBlockPosition,
+    draggingParentUpdate,
 } = blocksSlice.actions;
 
 export default blocksSlice.reducer;

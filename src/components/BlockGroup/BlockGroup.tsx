@@ -3,11 +3,11 @@ import Block from '../../Types/Block';
 import DropZone from '../../Types/DropZone';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
-import { setupDragging, dropZones, pollingTest } from '../../utils';
+import { setupDragging, dropZones, pollingTest, dragThresholdTest } from '../../utils';
 import { ArgsConfig, BlocksConfig, ClampConfig } from '../../BlocksUIconfig';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
-import { dragBlockGroup, connectBlockGroups, connectChild, connectArg } from '../../redux/store/blocksSlice';
+import { dragBlockGroup, connectBlockGroups, draggingParentUpdate, connectChild, connectArg } from '../../redux/store/blocksSlice';
 import ValueBlock from '../Blocks/ValueBlock/ValueBlock';
 import DropZoneArg from '../../Types/DropZoneArg';
 import NestedArgBlock from '../Blocks/NestedArgBlock/NestedArgBlock'
@@ -34,6 +34,7 @@ const BlockGroup: React.FC<Props> = (props) => {
     const dispatch = useDispatch();
     const dragStartPosition = useRef({});
     const lastPollingPosition = useRef({});
+    const dragThresholdBreached = useRef(false);
     const groupRef = useRef<HTMLDivElement>(null);
     let blockPathRef = useRef<SVGPathElement>(null);
     const [dragging, setDragging] = useState(!!props.dragging);
@@ -103,15 +104,17 @@ const BlockGroup: React.FC<Props> = (props) => {
     useEffect(() => {
         if (props.dragging !== undefined)
             setDragging(props.dragging)
-    }, [props.dragging, props.position])
+    }, [props.dragging])
+
+    const dragConfig = {
+        dragStartPosition,
+        restoreThreshold: 25,
+        restoreEnabled: block.previousBlockId !== null
+    };
 
     useEffect(() => {
         setupDragging(
-            {
-                dragStartPosition,
-                restoreThreshold: 25,
-                restoreEnabled: block.previousBlockId !== null
-            },
+            dragConfig,
             blockPathRef,
             groupRef,
             {
@@ -120,13 +123,12 @@ const BlockGroup: React.FC<Props> = (props) => {
                 },
                 dragEnd: (x: number, y: number, storeUpdate: boolean) => {
                     setDragging(false);
+                    dragThresholdBreached.current = false;
                     if (!storeUpdate) {
                         return;
                     }
                     let collidingCount = 0;
                     if (isArg) {
-                        console.clear();
-                        console.log('HERE');
                         const collidingArgZones: DropZoneArg[] = dropZones.getCollidingArgZones(x, y, 5, block.blockHeightLines * BlocksConfig.BLOCK_SIZE)
                         collidingCount = collidingArgZones.length;
                         console.log(collidingArgZones);
@@ -167,7 +169,7 @@ const BlockGroup: React.FC<Props> = (props) => {
                         ))
                     }
                 },
-                dragging: (x: number, y: number) => {
+                dragging: (x: number, y: number, startPosition: { x: number, y: number }) => {
                     if (pollingTest(lastPollingPosition, { x, y }, 5)) {
                         const colliding: DropZone[] = (isArg ? dropZones.arg : dropZones.flow).colliding({
                             x,
@@ -180,6 +182,18 @@ const BlockGroup: React.FC<Props> = (props) => {
                             console.log(`colliding with ${colliding[0].id}`);
                         }
                         // console.log(colliding.length);
+                        if (startPosition &&
+                            !dragThresholdBreached.current &&
+                            !dragThresholdTest(
+                                startPosition,
+                                { x, y },
+                                dragConfig.restoreThreshold,
+                                dragConfig.restoreEnabled)) {
+                            dragThresholdBreached.current = true;
+                            dispatch(draggingParentUpdate({
+                                ignoreBlockId: block.id
+                            }));
+                        }
                     }
                 }
             }
