@@ -93,9 +93,7 @@ export const setupDragging = (
                         { x: divX, y: divY },
                         dragConfig.restoreThreshold,
                         dragConfig.restoreEnabled)) {
-                        console.log("Restoring Position of Block");
-                        groupRef.current.style.left = dragConfig.dragStartPosition.current.x;
-                        groupRef.current.style.top = dragConfig.dragStartPosition.current.y;
+                        restorePosition(groupRef, dragConfig.dragStartPosition);
                         storeUpdate = false;
                     }
                     startPosition = null;
@@ -106,3 +104,8 @@ export const setupDragging = (
         );
     }
 };
+
+export const restorePosition = (groupRef: React.RefObject<any>, dragStartPosition: React.MutableRefObject<any>) => {
+    groupRef.current.style.left = dragStartPosition.current.x;
+    groupRef.current.style.top = dragStartPosition.current.y;
+}

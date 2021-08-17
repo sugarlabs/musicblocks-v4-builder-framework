@@ -3,7 +3,7 @@ import Block from '../../Types/Block';
 import DropZone from '../../Types/DropZone';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
-import { setupDragging, dropZones, pollingTest, dragThresholdTest } from '../../utils';
+import { setupDragging, dropZones, pollingTest, restorePosition, dragThresholdTest } from '../../utils';
 import { ArgsConfig, BlocksConfig, ClampConfig } from '../../BlocksUIconfig';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
@@ -146,11 +146,22 @@ const BlockGroup: React.FC<Props> = (props) => {
                             console.log(collidingFlowZones);
                             console.log(`colliding with ${collidingFlowZones[0].id}`);
                             if (collidingFlowZones[0].id.indexOf('-child') !== -1) {
+                                const clampId = collidingFlowZones[0].id.slice(0, collidingFlowZones[0].id.indexOf('-child'));
+                                if (block.previousBlockId === clampId) {
+                                    console.log('Block Attached Back to its position');
+                                    restorePosition(groupRef, dragStartPosition);
+                                    return;
+                                }
                                 dispatch(connectChild({
                                     childId: block.id,
-                                    clampId: collidingFlowZones[0].id.slice(0, collidingFlowZones[0].id.indexOf('-child'))
+                                    clampId
                                 }))
                             } else {
+                                if (block.previousBlockId === collidingFlowZones[0].id) {
+                                    console.log('Block Attached Back to its position');
+                                    restorePosition(groupRef, dragStartPosition);
+                                    return;
+                                }
                                 dispatch(connectBlockGroups(
                                     {
                                         toConnectId: block.id,
