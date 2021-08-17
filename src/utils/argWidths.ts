@@ -2,7 +2,7 @@ import { ArgsConfig } from '../BlocksUIconfig';
 import Block from '../Types/Block'
 
 export const updateArgWidths = (state: { [id: string]: Block }, id: string, ignoredArgId?: string): { [id: string]: Block } => {
-    if (state[id].type === 'Value')
+    if (state[id].type === 'ArgValue')
         return state;
     const numArgs = state[id].argsLength as number;
     const args = state[id]?.args;

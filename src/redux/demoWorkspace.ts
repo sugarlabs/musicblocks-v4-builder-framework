@@ -19,7 +19,7 @@ const demoWorkspace: Block[] = [
     },
     {
         id: "100",
-        type: 'Value',
+        type: 'ArgValue',
         position: {
             x: 100,
             y: 700
@@ -35,7 +35,7 @@ const demoWorkspace: Block[] = [
     },
     {
         id: "101",
-        type: 'Value',
+        type: 'ArgValue',
         position: {
             x: 300,
             y: 700

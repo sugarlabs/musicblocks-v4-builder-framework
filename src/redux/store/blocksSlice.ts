@@ -30,7 +30,7 @@ export const blocksSlice = createSlice({
             if (state[ignoreBlockId].previousBlockId === null) {
                 return;
             } 
-            if (type === 'Value' || type === 'NestedArg') {
+            if (type === 'ArgValue' || type === 'NestedArg') {
                 state = {...updateArgWidths(state, topBlockId, ignoreBlockId)}
             } else {
                 state = {...updateBlockLines(state, topBlockId, ignoreBlockId)};
@@ -40,7 +40,7 @@ export const blocksSlice = createSlice({
         dragBlockGroup: ((state: { [id: string]: Block }, action: PayloadAction<{ id: string, position: { x: number, y: number } }>) => {
             const { id, position } = action.payload;
             const previousBlock = state[id].previousBlockId;
-            const isArg = state[id].type === 'Value' || state[id].type === 'NestedArg'; 
+            const isArg = state[id].type === 'ArgValue' || state[id].type === 'NestedArg'; 
             if (previousBlock !== null) {
                 if (isArg) {
                     const index = state[previousBlock].args?.indexOf(id);
@@ -74,13 +74,13 @@ export const blocksSlice = createSlice({
             }
             state[argId].previousBlockId = blockId;
 
+            let topBlockId = state[blockId].topBlockId;
             if (state[blockId].type.indexOf('Clamp') !== -1) {
-                state[argId].topBlockId = blockId;
-            } else {
-                const topBlockUpdatedState = {...state};
-                setTopBlockId(topBlockUpdatedState, argId, state[blockId].topBlockId);
-                state = {...topBlockUpdatedState};
+                topBlockId = blockId;
             }
+            const topBlockUpdatedState = {...state};
+            setTopBlockId(topBlockUpdatedState, argId, topBlockId);
+            state = {...topBlockUpdatedState};
 
             // state[argId].topBlockId = state[blockId].topBlockId;
             state = {...updateArgWidths(state, state[argId].topBlockId)};

@@ -25,8 +25,7 @@ interface Props {
 const BlockGroup: React.FC<Props> = (props) => {
 
     const block: Block = useSelector((state: any) => state.blocks[props.id]);
-    const isArg = block.type === 'Value' ||
-        block.type === 'ArgValue' ||
+    const isArg = block.type === 'ArgValue' ||
         block.type === 'NestedArg';
 
     console.log(`BlockGroup rendered ${block.id}`);
@@ -247,7 +246,7 @@ const BlockGroup: React.FC<Props> = (props) => {
                     switch (block.type) {
                         case 'Flow':
                             return <FlowBlock setBlockPathRef={setBlockPathRef} id={block.id} />
-                        case 'Value':
+                        case 'ArgValue':
                             return <ValueBlock setBlockPathRef={setBlockPathRef} id={block.id} />
                         case 'NestedArg':
                             return (<>
