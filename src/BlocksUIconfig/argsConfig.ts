@@ -5,4 +5,4 @@ export const ArgsConfig = {
     ARG_NOTCH_BRIDGE_WIDTH: 4,
     ARG_PLACEHOLDER_WIDTH: 1.5,
     ARG_NOTCH_BRIDGE_HEIGHT: 1,
-}
+};

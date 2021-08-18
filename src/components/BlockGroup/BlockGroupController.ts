@@ -9,7 +9,6 @@ import { dropZones } from '../../utils';
 class BlockGroupController {
     private static instance: BlockGroupController;
 
-
     public static getInstance(): BlockGroupController {
         if (!BlockGroupController.instance) {
             BlockGroupController.instance = new BlockGroupController();
@@ -17,7 +16,7 @@ class BlockGroupController {
         return BlockGroupController.instance;
     }
 
-    // add dropzones to attach other block below a block - applicable for Flow and Flow Clamp 
+    // add dropzones to attach other block below a block - applicable for Flow and Flow Clamp
     addDropZoneBelowBlock(groupRef: React.RefObject<HTMLDivElement>, block: Block) {
         const area = groupRef!.current!.getBoundingClientRect();
         const dropZone: DropZone = {
@@ -26,7 +25,7 @@ class BlockGroupController {
             id: block.id,
             width: block.defaultBlockWidthLines * BlocksConfig.BLOCK_SIZE,
             height: 0.3 * BlocksConfig.BLOCK_SIZE,
-        }
+        };
         dropZones.flow.push(dropZone);
     }
 
@@ -37,9 +36,9 @@ class BlockGroupController {
             x: area.left + ClampConfig.STEM_WIDTH * BlocksConfig.BLOCK_SIZE,
             y: area.top + (1 - 0.15) * BlocksConfig.BLOCK_SIZE,
             id: `${block.id}-child`,
-            width: block.defaultBlockWidthLines / 2 * BlocksConfig.BLOCK_SIZE,
+            width: (block.defaultBlockWidthLines / 2) * BlocksConfig.BLOCK_SIZE,
             height: 0.3 * BlocksConfig.BLOCK_SIZE,
-        }
+        };
         dropZones.flow.push(dropZone);
     }
 
@@ -48,15 +47,13 @@ class BlockGroupController {
         const area = groupRef!.current!.getBoundingClientRect();
         for (let i = 0; i < (block.argsLength || 0); i++) {
             const dropZone: DropZoneArg = {
-                x: area.left
-                    + dropAreaXoffset(block, i)
-                    * BlocksConfig.BLOCK_SIZE,
+                x: area.left + dropAreaXoffset(block, i) * BlocksConfig.BLOCK_SIZE,
                 y: area.top + (1 - 0.5) * BlocksConfig.BLOCK_SIZE,
                 id: `${block.id}`,
                 index: i,
                 width: ArgsConfig.ARG_PLACEHOLDER_WIDTH * BlocksConfig.BLOCK_SIZE,
                 height: 0.5 * BlocksConfig.BLOCK_SIZE,
-            }
+            };
             dropZones.arg.push(dropZone);
         }
     }

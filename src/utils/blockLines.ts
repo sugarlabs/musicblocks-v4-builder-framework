@@ -1,6 +1,10 @@
-import Block from '../@types/Block'
+import Block from '../@types/Block';
 
-export const updateBlockLines = (state: { [id: string]: Block }, id: string, ignoredBlockId?: string): { [id: string]: Block } => {
+export const updateBlockLines = (
+    state: { [id: string]: Block },
+    id: string,
+    ignoredBlockId?: string,
+): { [id: string]: Block } => {
     let blockId: null | string = id;
     while (blockId !== null) {
         if (state[blockId].type === 'FlowClamp' || state[blockId].type === 'StackClamp') {
@@ -11,8 +15,7 @@ export const updateBlockLines = (state: { [id: string]: Block }, id: string, ign
                 if (childBlockId !== ignoredBlockId) {
                     updateBlockLines(state, childBlockId, ignoredBlockId);
                     while (childBlockId !== null) {
-                        if (childBlockId === ignoredBlockId)
-                            break;
+                        if (childBlockId === ignoredBlockId) break;
                         childrenBlockLines += state[childBlockId].blockHeightLines;
                         childBlockId = state[childBlockId].nextBlockId;
                     }
@@ -20,9 +23,10 @@ export const updateBlockLines = (state: { [id: string]: Block }, id: string, ign
                 }
             }
             console.log(childrenBlockLines);
-            state[blockId].blockHeightLines = state[blockId].defaultBlockHeightLines as number + childrenBlockLines;
+            state[blockId].blockHeightLines =
+                (state[blockId].defaultBlockHeightLines as number) + childrenBlockLines;
         }
         blockId = state[blockId].nextBlockId;
     }
     return state;
-}
+};

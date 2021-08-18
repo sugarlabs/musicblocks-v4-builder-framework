@@ -2,40 +2,41 @@ import React, { useEffect, useRef } from 'react';
 import { FlowConfig, BlocksConfig, ClampConfig, ArgsConfig } from '../../../BlocksUIconfig';
 
 interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void
-  defaultBlockWidthLines: number
-  args?: Array<string | null>
-  blockHeightLines: number
-  blockWidthLines: number,
-  argWidths?: number[]
-  argsLength?: number
-  color: string
+  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
+  defaultBlockWidthLines: number;
+  args?: Array<string | null>;
+  blockHeightLines: number;
+  blockWidthLines: number;
+  argWidths?: number[];
+  argsLength?: number;
+  color: string;
 }
 
 const FlowClampBlockSVG: React.FC<Props> = (props) => {
   const drag: React.LegacyRef<SVGPathElement> = useRef(null);
-  const {
-    NOTCH_DISTANCE,
-    NOTCH_HEIGHT,
-    NOTCH_WIDTH } = FlowConfig;
+  const { NOTCH_DISTANCE, NOTCH_HEIGHT, NOTCH_WIDTH } = FlowConfig;
   const {
     ARG_NOTCH_BRIDGE_HEIGHT,
     ARG_NOTCH_BRIDGE_WIDTH,
     ARG_PLACEHOLDER_WIDTH,
     ARG_NOTCH_HEIGHT,
     ARG_NOTCH_WIDTH,
-    ARG_PADDING } = ArgsConfig;
+    ARG_PADDING,
+  } = ArgsConfig;
   const { STEM_WIDTH, LOWER_BRANCH } = ClampConfig;
 
   const blockLines = props.blockHeightLines + NOTCH_HEIGHT / 10;
 
-  const blockWidthLines = props.defaultBlockWidthLines
-    + ((props.argsLength || 0) * ARG_PLACEHOLDER_WIDTH)
-    + (props.args ? props.args.reduce(((acc, curr, index): number => {
-      if (curr !== null && props.argWidths && props.argWidths[index])
-        return acc + (props.argWidths[index]);
-      return acc + ARG_PLACEHOLDER_WIDTH;
-    }), 0) : 0);
+  const blockWidthLines =
+    props.defaultBlockWidthLines +
+    (props.argsLength || 0) * ARG_PLACEHOLDER_WIDTH +
+    (props.args
+      ? props.args.reduce((acc, curr, index): number => {
+          if (curr !== null && props.argWidths && props.argWidths[index])
+            return acc + props.argWidths[index];
+          return acc + ARG_PLACEHOLDER_WIDTH;
+        }, 0)
+      : 0);
 
   console.log(`Block Width Lines = ${blockWidthLines}`);
 
@@ -43,7 +44,7 @@ const FlowClampBlockSVG: React.FC<Props> = (props) => {
     if (drag.current) {
       props.setBlockPathRef(drag);
     }
-  }, [props])
+  }, [props]);
 
   const argsSVG = () => {
     let argsHolderSvg = '';
@@ -67,7 +68,7 @@ const FlowClampBlockSVG: React.FC<Props> = (props) => {
       argsHolderSvg += `h${ARG_PADDING * 10} `;
     }
     return argsHolderSvg;
-  }
+  };
 
   return (
     <svg
@@ -77,16 +78,16 @@ const FlowClampBlockSVG: React.FC<Props> = (props) => {
     >
       <path
         ref={drag}
-        stroke={"black"}
-        strokeWidth={".1"}
+        stroke={'black'}
+        strokeWidth={'.1'}
         fill={props.color}
-        style={{ pointerEvents: "fill" }}
+        style={{ pointerEvents: 'fill' }}
         d={`M0 0 
             h${NOTCH_DISTANCE} 
             v${NOTCH_HEIGHT}
             h${NOTCH_WIDTH} 
             v-${NOTCH_HEIGHT}
-            h${(props.defaultBlockWidthLines * 10) - (NOTCH_DISTANCE + NOTCH_WIDTH)}
+            h${props.defaultBlockWidthLines * 10 - (NOTCH_DISTANCE + NOTCH_WIDTH)}
             ${props.argsLength ? argsSVG() : ''}
             v10 
             h-${(props.blockWidthLines - STEM_WIDTH) * 10 - (NOTCH_DISTANCE + NOTCH_WIDTH)} 
@@ -99,17 +100,21 @@ const FlowClampBlockSVG: React.FC<Props> = (props) => {
             v${NOTCH_HEIGHT}
             h${NOTCH_WIDTH} 
             v-${NOTCH_HEIGHT}
-            h${(LOWER_BRANCH * props.defaultBlockWidthLines * 10) - (NOTCH_DISTANCE + NOTCH_WIDTH)}
-            v${10 * (1)}
-            h-${(LOWER_BRANCH * props.defaultBlockWidthLines * 10) + (STEM_WIDTH * 10) - (NOTCH_DISTANCE + NOTCH_WIDTH)}
+            h${LOWER_BRANCH * props.defaultBlockWidthLines * 10 - (NOTCH_DISTANCE + NOTCH_WIDTH)}
+            v${10 * 1}
+            h-${
+              LOWER_BRANCH * props.defaultBlockWidthLines * 10 +
+              STEM_WIDTH * 10 -
+              (NOTCH_DISTANCE + NOTCH_WIDTH)
+            }
             v${NOTCH_HEIGHT}
             h-${NOTCH_WIDTH}
             v-${NOTCH_HEIGHT}
             h-${NOTCH_DISTANCE}
-            v-${((blockLines + NOTCH_HEIGHT / 10)) * 10}`}
+            v-${(blockLines + NOTCH_HEIGHT / 10) * 10}`}
       />
     </svg>
-  )
-}
+  );
+};
 
 export default FlowClampBlockSVG;

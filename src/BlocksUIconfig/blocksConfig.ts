@@ -1,3 +1,3 @@
 export const BlocksConfig = {
-    BLOCK_SIZE: 50
-}
+    BLOCK_SIZE: 50,
+};
