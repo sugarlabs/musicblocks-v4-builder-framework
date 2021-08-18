@@ -1,12 +1,9 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateBlockPosition } from '../../../redux/store/blocksSlice';
+import { IStackClampBlockController } from '../../../@types/Components/stackClampBlock';
 
-interface Props {
-  id: string;
-}
-
-const StackClampBlock: React.FC<Props> = (props) => {
+const StackClampBlock: React.FC<IStackClampBlockController> = (props) => {
   const block = useSelector((state: any) => state.blocks[props.id]);
   console.log(`Stack Clamp Block ${props.id} rerendered`);
   const dispatch = useDispatch();

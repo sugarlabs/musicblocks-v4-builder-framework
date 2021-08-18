@@ -1,18 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { IFlowClampBlockView } from '../../../@types/Components/flowClampBlock';
 import { FlowConfig, BlocksConfig, ClampConfig, ArgsConfig } from '../../../BlocksUIconfig';
 
-interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
-  defaultBlockWidthLines: number;
-  args?: Array<string | null>;
-  blockHeightLines: number;
-  blockWidthLines: number;
-  argWidths?: number[];
-  argsLength?: number;
-  color: string;
-}
-
-const FlowClampBlockSVG: React.FC<Props> = (props) => {
+const FlowClampBlockSVG: React.FC<IFlowClampBlockView> = (props) => {
   const drag: React.LegacyRef<SVGPathElement> = useRef(null);
   const { NOTCH_DISTANCE, NOTCH_HEIGHT, NOTCH_WIDTH } = FlowConfig;
   const {

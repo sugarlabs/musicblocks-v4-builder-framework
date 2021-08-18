@@ -16,8 +16,8 @@ import {
 } from '../../utils';
 import DropZoneArg from '../../@types/DropZoneArg';
 import * as Actions from '../../redux/store/blocksSlice';
-import ValueBlock from '../Blocks/ValueBlock/ValueBlock';
-import IBlockGroup from '../../@types/ComponentProps/blockGroup';
+import ArgValueBlock from '../Blocks/ArgValueBlock/ArgValueBlock';
+import IBlockGroup from '../../@types/Components/blockGroup';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import NestedArgBlock from '../Blocks/NestedArgBlock/NestedArgBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
@@ -202,7 +202,7 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
           case 'Flow':
             return <FlowBlock setBlockPathRef={setBlockPathRef} id={block.id} />;
           case 'ArgValue':
-            return <ValueBlock setBlockPathRef={setBlockPathRef} id={block.id} />;
+            return <ArgValueBlock setBlockPathRef={setBlockPathRef} id={block.id} />;
           case 'NestedArg':
             return (
               <>

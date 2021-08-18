@@ -1,14 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { ArgsConfig, BlocksConfig } from '../../../BlocksUIconfig';
+import { IArgValueBlockView } from '../../../@types/Components/argValueBlock';
 
-interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
-  defaultBlockWidthLines: number;
-  blockHeightLines: number;
-  color: string;
-}
-
-const ValueBlockSVG: React.FC<Props> = (props) => {
+const ArgValueBlockSVG: React.FC<IArgValueBlockView> = (props) => {
   const drag: React.LegacyRef<SVGPathElement> = useRef(null);
   const { ARG_NOTCH_BRIDGE_HEIGHT, ARG_NOTCH_BRIDGE_WIDTH, ARG_NOTCH_HEIGHT, ARG_NOTCH_WIDTH } =
     ArgsConfig;
@@ -53,4 +47,4 @@ const ValueBlockSVG: React.FC<Props> = (props) => {
   );
 };
 
-export default React.memo(ValueBlockSVG);
+export default React.memo(ArgValueBlockSVG);

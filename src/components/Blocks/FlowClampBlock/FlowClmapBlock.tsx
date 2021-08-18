@@ -1,13 +1,9 @@
-import React, { ReactElement } from 'react';
-import FlowClampBlockSVG from './FlowClampBlockSVG';
+import React from 'react';
 import { useSelector } from 'react-redux';
+import FlowClampBlockSVG from './FlowClampBlockSVG';
+import { IFlowBlockController } from '../../../@types/Components/flowBlock';
 
-interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
-  id: string;
-}
-
-const FlowClampBlock: React.FC<Props> = (props) => {
+const FlowClampBlock: React.FC<IFlowBlockController> = (props) => {
   const block = useSelector((state: any) => state.blocks[props.id]);
   console.log(`Flow Clamp Block ${props.id} rerendered`);
   return (

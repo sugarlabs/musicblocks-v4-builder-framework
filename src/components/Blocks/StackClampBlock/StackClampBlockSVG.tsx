@@ -1,16 +1,8 @@
 import React from 'react';
+import { IStackClampBlockView } from '../../../@types/Components/stackClampBlock';
 import { FlowConfig, BlocksConfig, StackClampCapSize, ClampConfig } from '../../../BlocksUIconfig';
 
-interface Props {
-  defaultBlockWidthLines: number;
-  blockHeightLines: number;
-  blocksLength: number;
-  argWidths: number[];
-  argsLength: number;
-  color: string;
-}
-
-const StackClampBlockSVG: React.FC<Props> = (props) => {
+const StackClampBlockSVG: React.FC<IStackClampBlockView> = (props) => {
   const { NOTCH_DISTANCE, NOTCH_HEIGHT, NOTCH_WIDTH } = FlowConfig;
   // const {
   // ARG_NOTCH_BRIDGE_HEIGHT,

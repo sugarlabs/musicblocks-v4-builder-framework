@@ -1,14 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { FlowConfig, BlocksConfig } from '../../../BlocksUIconfig';
+import { IFlowBlockView } from '../../../@types/Components/flowBlock';
 
-interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
-  blockHeightLines: number;
-  defaultBlockWidthLines: number;
-  color: string;
-}
-
-const FlowBlockSVG: React.FC<Props> = (props) => {
+const FlowBlockSVG: React.FC<IFlowBlockView> = (props) => {
   const drag: React.LegacyRef<SVGPathElement> = useRef(null);
   const { NOTCH_DISTANCE, NOTCH_HEIGHT, NOTCH_WIDTH } = FlowConfig;
   const blockLines = props.blockHeightLines + NOTCH_HEIGHT / 10;

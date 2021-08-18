@@ -1,17 +1,13 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import ValueBlockSVG from './ValueBlockSVG';
+import ArgValueBlockSVG from './ArgValueBlockSVG';
+import { IArgValueBlockController } from '../../../@types/Components/argValueBlock';
 
-interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
-  id: string;
-}
-
-const ValueBlock: React.FC<Props> = (props) => {
+const ArgValueBlock: React.FC<IArgValueBlockController> = (props) => {
   const block = useSelector((state: any) => state.blocks[props.id]);
   return (
     <div className="Value Block">
-      <ValueBlockSVG
+      <ArgValueBlockSVG
         blockHeightLines={block.blockHeightLines}
         defaultBlockWidthLines={block.defaultBlockWidthLines}
         setBlockPathRef={props.setBlockPathRef}
@@ -21,4 +17,4 @@ const ValueBlock: React.FC<Props> = (props) => {
   );
 };
 
-export default React.memo(ValueBlock);
+export default React.memo(ArgValueBlock);

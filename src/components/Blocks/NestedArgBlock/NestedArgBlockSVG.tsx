@@ -1,18 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { ArgsConfig, BlocksConfig } from '../../../BlocksUIconfig';
+import { INestedArgBlockView } from '../../../@types/Components/nestedArgBlock';
 
-interface Props {
-  setBlockPathRef: (drag: React.RefObject<SVGPathElement>) => void;
-  defaultBlockWidthLines: number;
-  blockHeightLines: number;
-  blockWidthLines: number;
-  argWidths: number[];
-  argsLength: number;
-  args: string[];
-  color: string;
-}
-
-const NestedArgBlockSVG: React.FC<Props> = (props) => {
+const NestedArgBlockSVG: React.FC<INestedArgBlockView> = (props) => {
   const drag: React.LegacyRef<SVGPathElement> = useRef(null);
   const {
     ARG_NOTCH_BRIDGE_HEIGHT,
