@@ -1,5 +1,5 @@
 import React from 'react';
-import Block from './Types/Block';
+import Block from './@types/Block';
 import { useSelector } from 'react-redux';
 import BlockGroup from './components/BlockGroup/BlockGroup';
 

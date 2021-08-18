@@ -1,4 +1,4 @@
-import Block from '../Types/Block'
+import Block from '../@types/Block'
 
 export const updateBlockLines = (state: { [id: string]: Block }, id: string, ignoredBlockId?: string): { [id: string]: Block } => {
     let blockId: null | string = id;

@@ -1,4 +1,4 @@
-import Block from "../Types/Block";
+import Block from "../@types/Block";
 
 const demoWorkspace: Block[] = [
     {

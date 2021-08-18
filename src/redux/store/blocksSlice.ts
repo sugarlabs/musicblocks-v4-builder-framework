@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { updateBlockLines } from "../../utils/blockLines";
 import { updateArgWidths } from "../../utils/argWidths";
 import { loadWorkSpace } from "../demoWorkspace";
-import Block from "../../Types/Block";
+import Block from "../../@types/Block";
 
 const setTopBlockId = (state: { [id: string]: Block }, elementId: string, newTopBlockId: string) => {
     state[elementId].topBlockId = newTopBlockId;

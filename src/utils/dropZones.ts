@@ -1,6 +1,6 @@
 import Quadtree from "quadtree-lib";
-import DropZone from "../Types/DropZone";
-import DropZoneArg from "../Types/DropZoneArg";
+import DropZone from "../@types/DropZone";
+import DropZoneArg from "../@types/DropZoneArg";
 
 class DropZones {
     private static instance: DropZones;

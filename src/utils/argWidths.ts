@@ -1,5 +1,5 @@
 import { ArgsConfig } from '../BlocksUIconfig';
-import Block from '../Types/Block'
+import Block from '../@types/Block'
 
 export const updateArgWidths = (state: { [id: string]: Block }, id: string, ignoredArgId?: string): { [id: string]: Block } => {
     if (state[id].type === 'ArgValue')
@@ -26,4 +26,21 @@ export const updateArgWidths = (state: { [id: string]: Block }, id: string, igno
     state[id].blockWidthLines = blockWidth;
     state[id].argWidths = argWidths;
     return state;
+}
+
+export const dropAreaXoffset = (block: Block, i: number) => {
+    const { defaultBlockWidthLines, args, argWidths } = block
+    if (defaultBlockWidthLines && args && argWidths) {
+        return ((defaultBlockWidthLines || 0)
+            + (ArgsConfig.ARG_PADDING * i)
+            + (args || []).slice(0, i).reduce(
+                (acc, curr, index) => {
+                    if (curr === null) {
+                        return acc + ArgsConfig.ARG_PLACEHOLDER_WIDTH
+                    } else {
+                        return acc + argWidths[index]
+                    }
+                }, 0));
+    }
+    return 0;
 }
