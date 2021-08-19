@@ -1,4 +1,4 @@
-export default interface DropZone {
+export default interface IDropZoneFlow {
     x: number;
     y: number;
     id: string;

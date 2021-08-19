@@ -1,11 +1,12 @@
 import Quadtree from 'quadtree-lib';
-import DropZone from '../@types/DropZone';
-import DropZoneArg from '../@types/DropZoneArg';
+import IDropZones from '../@types/dropZones';
+import IDropZoneArg from '../@types/dropZoneArg';
+import IDropZoneFlow from '../@types/dropZoneFlow';
 
-class DropZones {
+class DropZones implements IDropZones {
     private static instance: DropZones;
-    private quadtreeHorizontal: Quadtree<DropZone>;
-    private quadtreeVertical: Quadtree<DropZoneArg>;
+    private quadtreeHorizontal: Quadtree<IDropZoneFlow>;
+    private quadtreeVertical: Quadtree<IDropZoneArg>;
 
     private constructor() {
         const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
@@ -15,15 +16,20 @@ class DropZones {
         this.quadtreeVertical = new Quadtree({ width: vw, height: vh });
     }
 
-    public get flow(): Quadtree<DropZone> {
+    public get flow(): Quadtree<IDropZoneFlow> {
         return this.quadtreeHorizontal;
     }
 
-    public get arg(): Quadtree<DropZoneArg> {
+    public get arg(): Quadtree<IDropZoneArg> {
         return this.quadtreeVertical;
     }
 
-    public getCollidingFlowZones(x: number, y: number, width: number, height: number): DropZone[] {
+    public getCollidingFlowZones(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+    ): IDropZoneFlow[] {
         return this.quadtreeHorizontal.colliding({ x, y, width, height });
     }
 
@@ -32,19 +38,19 @@ class DropZones {
         y: number,
         width: number,
         height: number,
-    ): DropZoneArg[] {
+    ): IDropZoneArg[] {
         return this.quadtreeVertical.colliding({ x, y, width, height });
     }
 
     public removeFlowZones(id: string): void {
-        const dropZonesBlocks: DropZone[] = this.quadtreeHorizontal.find((ele) => {
+        const dropZonesBlocks: IDropZoneFlow[] = this.quadtreeHorizontal.find((ele) => {
             return ele.id === id || ele.id.substring(0, ele.id.indexOf('-')) === id;
         });
         dropZonesBlocks.forEach((zone) => this.quadtreeHorizontal.remove(zone));
     }
 
     public removeArgZones(id: string): void {
-        const dropZonesBlocks: DropZoneArg[] = this.quadtreeVertical.find((ele) => {
+        const dropZonesBlocks: IDropZoneArg[] = this.quadtreeVertical.find((ele) => {
             return ele.id === id || ele.id.substring(0, ele.id.indexOf('-')) === id;
         });
         dropZonesBlocks.forEach((zone) => this.quadtreeVertical.remove(zone));
@@ -58,4 +64,4 @@ class DropZones {
     }
 }
 
-export const dropZones = DropZones.getInstance();
+export default DropZones.getInstance();

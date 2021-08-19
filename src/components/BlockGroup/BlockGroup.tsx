@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Block from '../../@types/Block';
-import DropZone from '../../@types/DropZone';
+import dropZones from '../../DropZones/DropZones';
+import IDropZoneFlow from '../../@types/dropZoneFlow';
 import FlowBlock from '../Blocks/FlowBlock/FlowBlock';
 import { useDispatch, useSelector } from 'react-redux';
 import { dropAreaXoffset } from '../../utils/argWidths';
-import { blockGroupController } from './BlockGroupController';
+import blockGroupController from './BlockGroupController';
+import dropZonesController from '../../DropZones/DropZonesController';
 import {
-    setupDragging,
-    dropZones,
-    pollingTest,
-    restorePosition,
-    dragThresholdTest,
-    isClamp,
-    isArg,
+  setupDragging,
+  pollingTest,
+  restorePosition,
+  dragThresholdTest,
+  isClamp,
+  isArg,
 } from '../../utils';
-import DropZoneArg from '../../@types/DropZoneArg';
+import IDropZoneArg from '../../@types/dropZoneArg';
 import * as Actions from '../../redux/store/blocksSlice';
-import ArgValueBlock from '../Blocks/ArgValueBlock/ArgValueBlock';
 import IBlockGroup from '../../@types/Components/blockGroup';
+import ArgValueBlock from '../Blocks/ArgValueBlock/ArgValueBlock';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';
 import NestedArgBlock from '../Blocks/NestedArgBlock/NestedArgBlock';
 import StackClampBlock from '../Blocks/StackClampBlock/StackClampBlock';
@@ -63,7 +64,7 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
         }
         let collidingCount = 0;
         if (isArg(block.type)) {
-          const collidingArgZones: DropZoneArg[] = dropZones.getCollidingArgZones(
+          const collidingArgZones: IDropZoneArg[] = dropZones.getCollidingArgZones(
             x,
             y,
             5,
@@ -81,7 +82,7 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
             );
           }
         } else {
-          const collidingFlowZones: DropZone[] = dropZones.getCollidingFlowZones(x, y, 5, 5);
+          const collidingFlowZones: IDropZoneFlow[] = dropZones.getCollidingFlowZones(x, y, 5, 5);
           collidingCount = collidingFlowZones.length;
           if (collidingCount > 0) {
             console.log(collidingFlowZones);
@@ -128,7 +129,7 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
       },
       dragging: (x: number, y: number, startPosition: { x: number; y: number }) => {
         if (pollingTest(lastPollingPosition, { x, y }, 5)) {
-          const colliding: DropZone[] = (
+          const colliding: IDropZoneFlow[] = (
             isArg(block.type) ? dropZones.arg : dropZones.flow
           ).colliding({
             x,
@@ -166,13 +167,22 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
   useEffect(() => {
     dropZones.removeFlowZones(block.id);
     dropZones.removeArgZones(block.id);
+    const { STEM_WIDTH } = ClampConfig;
+    const { BLOCK_SIZE } = BlocksConfig;
+    const { ARG_PLACEHOLDER_WIDTH } = ArgsConfig;
     if (!dragging) {
-      blockGroupController.addDropZoneBelowBlock(groupRef, block);
+      dropZonesController.addDropZoneBelowBlock(groupRef, block, dropZones, { BLOCK_SIZE });
       if (isClamp(block.type)) {
-        blockGroupController.addChildDropZone(groupRef, block);
+        dropZonesController.addChildDropZone(groupRef, block, dropZones, {
+          BLOCK_SIZE,
+          STEM_WIDTH,
+        });
       }
       if (block.argsLength) {
-        blockGroupController.addArgDropZone(groupRef, block);
+        dropZonesController.addArgDropZone(groupRef, block, dropZones, {
+          BLOCK_SIZE,
+          ARG_PLACEHOLDER_WIDTH,
+        });
       }
     }
   });
