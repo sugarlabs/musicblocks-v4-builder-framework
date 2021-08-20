@@ -63,7 +63,7 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
           return;
         }
         let collidingCount = 0;
-        if (isArg(block.type)) {
+        if (isArg(block)) {
           const collidingArgZones: IDropZoneArg[] = dropZones.getCollidingArgZones(
             x,
             y,
@@ -130,12 +130,12 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
       dragging: (x: number, y: number, startPosition: { x: number; y: number }) => {
         if (pollingTest(lastPollingPosition, { x, y }, 5)) {
           const colliding: IDropZoneFlow[] = (
-            isArg(block.type) ? dropZones.arg : dropZones.flow
+            isArg(block) ? dropZones.arg : dropZones.flow
           ).colliding({
             x,
             y,
             width: 5,
-            height: isArg(block.type) ? block.blockHeightLines * BlocksConfig.BLOCK_SIZE : 5,
+            height: isArg(block) ? block.blockHeightLines * BlocksConfig.BLOCK_SIZE : 5,
           });
           if (colliding.length > 0) {
             console.log(colliding);
@@ -172,7 +172,7 @@ const BlockGroup: React.FC<IBlockGroup> = (props) => {
     const { ARG_PLACEHOLDER_WIDTH } = ArgsConfig;
     if (!dragging) {
       dropZonesController.addDropZoneBelowBlock(groupRef, block, dropZones, { BLOCK_SIZE });
-      if (isClamp(block.type)) {
+      if (isClamp(block)) {
         dropZonesController.addChildDropZone(groupRef, block, dropZones, {
           BLOCK_SIZE,
           STEM_WIDTH,
