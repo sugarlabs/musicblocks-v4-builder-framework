@@ -1,9 +1,9 @@
-import { isArg } from '../../../utils';
-import Block from '../../../@types/Block';
+import { isArg } from '../../../../../utils';
+import Block from '../../../../../@types/Block';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setTopBlockId } from '../utils/setTopBlockId';
-import { updateArgWidths } from '../../../utils/argWidths';
-import { updateBlockLines } from '../../../utils/blockLines';
+import { updateArgWidths } from '../../../../../utils/argWidths';
+import { updateBlockLines } from '../../../../../utils/blockLines';
 
 export const dragBlockGroup = (
     state: { [id: string]: Block },

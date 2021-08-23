@@ -1,7 +1,7 @@
-import Block from '../../../@types/Block';
+import Block from '../../../../../@types/Block';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setTopBlockId } from '../utils/setTopBlockId';
-import { updateArgWidths } from '../../../utils/argWidths';
+import { updateArgWidths } from '../../../../../utils/argWidths';
 
 export const connectArg = (
     state: { [id: string]: Block },

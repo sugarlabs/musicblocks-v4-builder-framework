@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { loadWorkSpace } from '../demoWorkspace';
-import Block from '../../@types/Block';
+import { loadWorkSpace } from '../../../demoWorkspace';
+import Block from '../../../../@types/Block';
 import * as reducers from './reducers';
 
 // every block should be aware of the top most block in its stack
@@ -11,6 +11,7 @@ export const blocksSlice = createSlice({
     name: 'blocks',
     initialState: loadWorkSpace(),
     reducers: {
+        createBlocks: reducers.createBlocks,
         draggingParentUpdate: reducers.draggingParentUpdate,
         dragBlockGroup: reducers.dragBlockGroup,
         connectArg: reducers.connectArg,
@@ -36,6 +37,7 @@ export const blocksSlice = createSlice({
 export const {
     connectArg,
     deleteBlock,
+    createBlocks,
     connectChild,
     dragBlockGroup,
     connectBlockGroups,

@@ -1,8 +1,8 @@
-import Block from '../../../@types/Block';
+import Block from '../../../../../@types/Block';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { isArg, isTopMostInStack } from '../../../utils';
-import { updateArgWidths } from '../../../utils/argWidths';
-import { updateBlockLines } from '../../../utils/blockLines';
+import { isArg, isTopMostInStack } from '../../../../../utils';
+import { updateArgWidths } from '../../../../../utils/argWidths';
+import { updateBlockLines } from '../../../../../utils/blockLines';
 
 // adjust clamp and arg connectors of parent when drag starts
 export const draggingParentUpdate = (

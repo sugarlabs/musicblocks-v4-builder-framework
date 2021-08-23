@@ -16,7 +16,7 @@ import {
   isArg,
 } from '../../utils';
 import IDropZoneArg from '../../@types/dropZoneArg';
-import * as Actions from '../../redux/store/blocksSlice';
+import * as Actions from '../../redux/store/slices/blocks';
 import IBlockGroup from '../../@types/Components/blockGroup';
 import ArgValueBlock from '../Blocks/ArgValueBlock/ArgValueBlock';
 import FlowClampBlock from '../Blocks/FlowClampBlock/FlowClmapBlock';

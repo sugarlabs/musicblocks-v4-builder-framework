@@ -1,5 +1,5 @@
-import Block from '../../../@types/Block';
-import { blockHasChild, hasNextFlowBlock, isNestedArgBlock } from '../../../utils';
+import Block from '../../../../../@types/Block';
+import { blockHasChild, hasNextFlowBlock, isNestedArgBlock } from '../../../../../utils';
 
 export const setTopBlockId = (
     prevState: { [id: string]: Block },

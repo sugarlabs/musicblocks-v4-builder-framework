@@ -1,8 +1,8 @@
-import Block from '../../../@types/Block';
+import Block from '../../../../../@types/Block';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { isTopMostInStack } from '../../../utils';
+import { isTopMostInStack } from '../../../../../utils';
 import { setTopBlockId } from '../utils/setTopBlockId';
-import { updateBlockLines } from '../../../utils/blockLines';
+import { updateBlockLines } from '../../../../../utils/blockLines';
 
 export const connectChild = (
     state: { [id: string]: Block },
